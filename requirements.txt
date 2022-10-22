@@ -1,0 +1,9 @@
+flask-marshmallow==0.14.0
+flask_jwt_extended==4.4.4
+flask
+gevent==22.10.1
+pytz==2022.5
+flask_sqlalchemy
+SQLAlchemy
+marshmallow==3.18.0
+redis==4.3.4

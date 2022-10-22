@@ -1,0 +1,7 @@
+ACCESS TOKEN - В РЕДИС (будем спрашивать его постоянно)
+REFRESH TOKEN - В БД (спрашиваем только при логине)
+
+
+через wsgi_app и pywsgi у меня не завелось.
+
+# protected вьюхи в случае ошибки дает 422 msg": "Signature verification failed"
