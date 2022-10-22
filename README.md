@@ -1,1 +1,2 @@
-# team_Auth_sprint_1
+### Запуск
+python app.py
