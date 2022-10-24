@@ -30,13 +30,10 @@ app = Flask(__name__)
 jwt = JWTManager(app)
 
 ACCESS_TOKEN_LIFE = 15 # sec
-REFRESH_TOKEN_LIFE = 45 # sec
+REFRESH_TOKEN_LIFE = 30 # sec
 
 START_TIME = ''
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
 
 def alert_and_redirect(text, url):
     '''оповещение с переадресацией (когда токен просрочился)'''
@@ -75,7 +72,7 @@ def login():
         return alert_and_redirect('ошибка, неправильный пароль', url_for('login'))
 
     # в токен можно засовывать инфу любую о пользователе, в том числе наверно его роль
-    user_token_data = {"user_name":user_name, "user_id":existing_user.id, "logged": "true"} 
+    user_token_data = {"user_name":user_name, "user_id":existing_user.id, "logged": "true", "role": "just_a_user"} 
 
     new_access_token = create_access_token(identity=user_token_data) 
     print('сделали access_token', new_access_token)
@@ -92,6 +89,7 @@ def login():
     db_manager.update_refresh_token(user_id=existing_user.id, new_refresh_token=new_refresh_token, expiration_datetime=token_expiration_date)
 
     resp = make_response(redirect(url_for('protected')))
+    resp.set_cookie('asdasd', new_access_token)
     # добавляем access_token в cookies
     set_access_cookies(resp, new_access_token)
     global START_TIME
@@ -151,6 +149,11 @@ def require_jwt(*args, **kwargs):
 def protected():
     return make_response(f'ты залогинен. \n\n тебя разлогинет через {int(START_TIME + REFRESH_TOKEN_LIFE - time.time())} секунд')
 
+
+@app.route("/pay_wall_movies")
+@require_jwt()
+def pay_wall_movies():
+    return 'pay_wall_movies'
 
 
 def main():
