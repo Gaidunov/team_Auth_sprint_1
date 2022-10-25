@@ -1,18 +1,14 @@
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
-db = SQLAlchemy()
+from src.models.models import User, RefreshTokens
+from src.db.db import db_session
+from sqlalchemy.orm import Session
 
-from models import User, RefreshTokens
 
+class DataBaseManager:
+    """КЛАСС ДЛЯ ХОЖДЕНИЯ В БАЗУ"""
 
-def init_db(app):
-    with app.app_context():
-        import models
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///MY_DB.db'
-        db.init_app(app) 
-        db.create_all()
-
-class DataBase:
+    def __init__(self, session: Session) -> None:
+        self.session = session
 
     def update_refresh_token(self, user_id:str, new_refresh_token:str, expiration_datetime:datetime):
         """
@@ -22,26 +18,38 @@ class DataBase:
         refresh_token_for_db = RefreshTokens.query.filter_by(user_id=user_id).first()
         if not refresh_token_for_db:
             refresh_token_for_db = RefreshTokens(user_id=user_id, token=new_refresh_token, token_expiration_date=expiration_datetime)
-            db.session.add(refresh_token_for_db)
-            db.session.commit()
+            self.session.add(refresh_token_for_db)
+            self.db.session.commit()
         else:
             refresh_token_for_db.token_expiration_date = expiration_datetime
             refresh_token_for_db.token = new_refresh_token
-            db.session.commit()
+            self.session.commit()
 
-    @staticmethod
-    def get_user_by_name(user_name:str)->User:
-        existing_user = User.query.filter_by(login=user_name).first() 
+    def get_user_by_login(self, login:str)->User:
+        existing_user = self.session.query(User).filter_by(id=login).first() 
         if not existing_user:
             raise ValueError('нет такого юзера')
         return existing_user
 
-    @staticmethod
-    def get_user_by_id(user_id:str)->User:
-        existing_user = User.query.filter_by(id=user_id).first() 
+    def get_user_by_id(self, user_id:str)->User:
+        existing_user = self.session.query(User).filter_by(id=user_id).first() 
         if not existing_user:
             raise ValueError('нет такого юзера')
         return existing_user
+
+    def add_user(self, login:str, password:str) -> User:
+        query = self.session.query(User)
+        user = query.filter_by(login=login).first()
+        if user:
+            #TODO: сделать кастомную ошибку
+            raise ValueError('такой юзер уже есть')
+
+        if not user:
+            user = User(login=login)
+            user.set_password(password)
+            self.session.add(user)
+            self.session.commit()
+        return user
 
     def check_if_refresh_token_is_fresh(self, user_id:str):
         user = self.get_user_by_id(user_id)
@@ -51,4 +59,4 @@ class DataBase:
         return False
 
         
-db_manager = DataBase()
+db_manager = DataBaseManager(db_session)

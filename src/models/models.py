@@ -1,24 +1,24 @@
 import uuid
-from sqlalchemy.dialects.postgresql import UUID
 import enum
+from flask_sqlalchemy import SQLAlchemy
+
 from sqlalchemy import Column, Integer, DateTime, Text, String, ForeignKey, Enum
 from sqlalchemy.orm import relationship
-
-from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from src.db.db import Base
+
+db = SQLAlchemy()
 
 
-class User(db.Model):
+class User(Base):
     __tablename__ = 'users'
 
     id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
     login = Column(String, unique=True, nullable=False)
-    password = Column(String, nullable=False)
-    password_hash = Column(String(128))
+    password_hash = Column(String(128), nullable=False)
     refresh_token = relationship("RefreshTokens", uselist=False, backref="user")
     session = relationship('SessionHistory')
-    roles = relationship("Role", back_populates="users")
-
+    roles = relationship("Role", back_populates="user")
 
     def set_password(self, password):   
         self.password_hash = generate_password_hash(password)
@@ -34,7 +34,7 @@ class UserActoins(enum.Enum):
     log_out = 'log_out'
     
 
-class SessionHistory(db.Model):
+class SessionHistory(Base):
     __tablename__ = 'history'
 
     id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
@@ -49,19 +49,19 @@ class UserRoles(enum.Enum):
     unregistered = 'unregistred'
 
 
-class Role(db.Model):
+class Role(Base):
     __tablename__ = 'roles'
     
     id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
     name = Column(Enum(UserRoles)) 
-    user_id = Column(Integer, ForeignKey("user_id.id"))
     user = relationship("User")
+    user_id = Column(Integer, ForeignKey("users.id"))
    
     def __repr__(self):
         return f'<Role {self.login}>' 
 
 
-class RefreshTokens(db.Model):
+class RefreshTokens(Base):
     __tablename__ = 'refresh_tokens'
 
     id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
