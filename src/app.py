@@ -18,7 +18,7 @@ from src.db.db import db_session, create_db
 from src.models import models 
 
 #Views
-from src.api.v1 import users, movies
+from src.api.v1 import users, movies, roles
 
 
 def main():
@@ -41,9 +41,10 @@ def main():
 
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(movies.routes, url_prefix='/api/v1/movies/')
+    app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
     
 
-    app.run()
+    app.run(debug=True)
 
 
 if __name__ == '__main__':

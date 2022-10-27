@@ -1,10 +1,65 @@
 from datetime import datetime
-from src.models.models import User, RefreshTokens
-from src.db.db import db_session
 from sqlalchemy.orm import Session
 
+from src.models.models import User, RefreshTokens, Role
+from src.models.schemas import RoleSchema
+from src.db.db import db_session
 
-class TokenManager:
+#TODO: сделать кастомную ошибку
+
+
+class UserManager():
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+    def get_user_by_login(self, login:str)->User:
+        existing_user = self.session.query(User).filter_by(login=login).first() 
+        if not existing_user:
+            raise ValueError('нет такого юзера')
+        return existing_user
+
+    def get_user_by_id(self, user_id:str)->User:
+        existing_user = self.session.query(User).filter_by(id=user_id).first() 
+        if not existing_user:
+            raise ValueError('нет такого юзера')
+        return existing_user
+
+    def change_password(self, login:str, password:str, new_password:str):
+        user = self.get_user_by_login(login)
+        if user.check_password(password):
+            user.set_password(new_password)
+            self.session.add(user)
+            self.session.commit()
+        else:
+            raise ValueError('направильный пароль')
+
+    def register_user(self, login:str, password:str) -> User:
+        query = self.session.query(User)
+        user = query.filter_by(login=login).first()
+        if user:
+            raise ValueError('такой юзер уже есть')
+        if not user:
+            user = User(login=login)
+            user.set_password(password)
+            self.session.add(user)
+            self.session.commit()
+        return user
+
+    def login_user(self, login:str, password:str) -> User|None:
+        query = self.session.query(User)
+        user = query.filter_by(login=login).first()
+        
+        if not user:
+            raise ValueError('такого юзера нет')
+        if user.check_password(password):
+            return user
+        raise ValueError('неправильный пароль')
+
+
+class TokenManager(UserManager):
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
     def update_refresh_token(self, user_id:str, new_refresh_token:str, expiration_datetime:datetime):
         """
         если у юзера нет refresh_token - добавляем
@@ -27,63 +82,47 @@ class TokenManager:
             return True
         return False
 
-
-
-
-
-class DataBaseManager:
-    """КЛАСС ДЛЯ ХОЖДЕНИЯ В БАЗУ"""
-
+            
+class RoleManager(UserManager):
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    def get_user_by_login(self, login:str)->User:
-        existing_user = self.session.query(User).filter_by(login=login).first() 
-        if not existing_user:
-            raise ValueError('нет такого юзера')
-        return existing_user
+    def add_role(self, role_name):
+        role = Role(name=role_name)
+        self.session.add(role)
+        self.session.commit()
+        return f'{role_name} добавлена'
 
-    def get_user_by_id(self, user_id:str)->User:
-        existing_user = self.session.query(User).filter_by(login=user_id).first() 
-        if not existing_user:
-            raise ValueError('нет такого юзера')
-        return existing_user
+    def get_user_roles(self, user_id:str)->list[str]|None:
+        user = self.get_user_by_id(user_id)
+        return user.roles
+    
+    def get_role_by_name(self, role_name:str)->Role|None:  
+        role = self.session.query(Role).filter_by(name=role_name).first()
+        if not role:
+            raise ValueError(f'роли {role} нет в базе!')
+        return role
 
-    def change_password(self, login:str, password:str, new_password:str):
-        user = self.get_user_by_login(login)
-        if user.check_password(password):
-            user.set_password(new_password)
-            self.session.add(user)
-            self.session.commit()
-        else:
-            raise ValueError('направильный пароль')
-        
-
-    def register_user(self, login:str, password:str) -> User:
-        query = self.session.query(User)
-        user = query.filter_by(login=login).first()
-        if user:
-            #TODO: сделать кастомную ошибку
-            raise ValueError('такой юзер уже есть')
-        if not user:
-            user = User(login=login)
-            user.set_password(password)
-            self.session.add(user)
-            self.session.commit()
-        return user
+    def add_user_role(self, user_id:str, role_name:str):
+        user = self.get_user_by_id(user_id)
+        role = self.get_role_by_name(role_name)
+        role_schema = RoleSchema(many=True)
+        user_rolser_parsed = [role['name'] for role in role_schema.dump(user.roles)]
+        if role in user_rolser_parsed:
+            raise ValueError('такая роль у юзера уже есть')
+        user.roles.append(role)
+        self.session.add(user)
+        self.session.commit()
+        return f'добавили {role} юзеру {user_id}'
 
 
-    def login_user(self, login:str, password:str) -> User|None:
-        query = self.session.query(User)
-        user = query.filter_by(login=login).first()
-        user:User
-        if not user:
-            raise ValueError('такой юзер уже есть')
-        if user.check_password(password):
-            return user
-        raise ValueError('неправильный пароль')
-            
-            
-        
-        
+
+class DataBaseManager():
+    def __init__(self, session: Session) -> None:
+        self.session = session
+        self.users = UserManager(session)
+        self.roles = RoleManager(session)
+        self.tokens = TokenManager(session) 
+
+
 db_manager = DataBaseManager(db_session)

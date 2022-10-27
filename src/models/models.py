@@ -2,12 +2,19 @@ import uuid
 import enum
 from flask_sqlalchemy import SQLAlchemy
 
-from sqlalchemy import Column, Integer, DateTime, Text, String, ForeignKey, Enum
+from sqlalchemy import Column, Integer, DateTime, Text, String, ForeignKey, Enum, Table
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from src.db.db import Base
 
 db = SQLAlchemy()
+
+users_n_roles = Table(
+    "users_n_roles",
+    Base.metadata,
+    Column("users_id", ForeignKey("users.id"), primary_key=True),
+    Column("roles_id", ForeignKey("roles.id"), primary_key=True),
+)
 
 
 class User(Base):
@@ -18,7 +25,8 @@ class User(Base):
     password_hash = Column(String(128), nullable=False)
     refresh_token = relationship("RefreshTokens", uselist=False, backref="user")
     session = relationship('SessionHistory')
-    roles = relationship("Role", back_populates="user")
+    roles = relationship("Role", secondary=users_n_roles, back_populates="users")
+
 
     def set_password(self, password):   
         self.password_hash = generate_password_hash(password)
@@ -43,22 +51,22 @@ class SessionHistory(Base):
     action = Column(Enum(UserActoins))
 
 
-class UserRoles(enum.Enum):
-    admin = 'admin'
-    registered = 'registred'
-    unregistered = 'unregistred'
+# class UserRoles(enum.Enum):
+#     admin = 'admin'
+#     registered = 'registred'
+#     unregistered = 'unregistred'
+
+POSSIBLE_USER_ROLES = ['admin', 'registred', 'unregistred']
 
 
 class Role(Base):
     __tablename__ = 'roles'
     
     id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
-    name = Column(Enum(UserRoles)) 
-    user = relationship("User")
-    user_id = Column(Integer, ForeignKey("users.id"))
-   
+    name = Column(Enum(*POSSIBLE_USER_ROLES)) 
+    users = relationship("User", secondary=users_n_roles, back_populates="roles")
     def __repr__(self):
-        return f'<Role {self.login}>' 
+        return f'<Role {self.name}>' 
 
 
 class RefreshTokens(Base):

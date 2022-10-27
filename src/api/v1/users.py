@@ -24,11 +24,10 @@ def register():
     body = request.json
     user_login, user_pass = body['login'], body['pass'] 
     try:
-        db_manager.register_user(user_login, user_pass)        
+        db_manager.users.register_user(user_login, user_pass)        
         return f'юзер {user_login} добавлен', HTTPStatus.CREATED
     except ValueError:
         return 'такой юзер уже есть', HTTPStatus.CONFLICT, 
-
 
 
 @routes.post('account/change_password')
@@ -37,7 +36,7 @@ def change_password():
     body = request.json
     user_login, user_pass, new_passw  = body['login'], body['pass'], body['new_pass']
     try:
-        db_manager.change_password(user_login, user_pass, new_passw)
+        db_manager.users.change_password(user_login, user_pass, new_passw)
         user_token_data = get_jwt()
         access_token, refresh_token = generate_jwt_tokens(user_token_data)
         response = make_response(f'сменили пароль', HTTPStatus.OK)
@@ -67,9 +66,7 @@ def login():
     body = request.json
     user_login, user_pass = body['login'], body['pass']
     try:
-        user = db_manager.login_user(user_login, user_pass)
-        
-        #TODO: добавить роль
+        user = db_manager.users.login_user(user_login, user_pass)
         user_token_data = {'user_id':user.id,'user_login':user_login}
         access_token, refresh_token = generate_jwt_tokens(user_token_data)
         response = make_response(f'юзер {user_login} залогинен', HTTPStatus.OK)
@@ -81,7 +78,7 @@ def login():
         return str(ex), HTTPStatus.CONFLICT, 
 
 
-@routes.post("/refresh_token")
+@routes.post("account/refresh_token")
 @jwt_required(refresh=True)
 def refresh():
     """обновляем access_token"""
@@ -93,18 +90,7 @@ def refresh():
 
 @routes.get('/<string:login>')
 def get_user_by_loging(login):
-    user = db_manager.get_user_by_login(login)
+    user = db_manager.users.get_user_by_login(login)
     return {'user_id':user.id, 'login':user.login}
 
-
-@routes.post('/<string:uid>')
-def add_a_user(uid):
-    """берем пароль из body post запроса"""
-    body = request.json
-    user_login, user_pass = body['login'], body['pass']
-    try:
-        db_manager.add_user(user_login, user_pass)
-        return f'юзер {user_login} добавлен', HTTPStatus.CREATED
-    except ValueError:
-        return 'такой юзер уже есть', HTTPStatus.CONFLICT, 
 
