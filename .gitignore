@@ -1,5 +1,8 @@
 # Kirill stuff
 win_env/
+lin_env/
+src/templates/
+alembic/versions/
 *.db
 my_*
 temp.py
