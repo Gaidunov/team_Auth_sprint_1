@@ -1,2 +1,2 @@
 ### Запуск
-python app.py
+python -m src.app

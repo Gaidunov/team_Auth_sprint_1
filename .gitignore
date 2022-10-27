@@ -1,6 +1,9 @@
 # Kirill stuff
 win_env/
-
+lin_env/
+src/templates/
+alembic/versions/
+*.db
 my_*
 temp.py
 # Byte-compiled / optimized / DLL files
@@ -125,7 +128,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+# .env
 .venv
 env/
 venv/
