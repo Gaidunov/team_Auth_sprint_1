@@ -3,7 +3,11 @@ flask_jwt_extended==4.4.4
 flask
 gevent==22.10.1
 pytz==2022.5
-flask_sqlalchemy
+Flask-SQLAlchemy==3.0.2
 SQLAlchemy
 marshmallow==3.18.0
 redis==4.3.4
+python-dotenv==0.21.0
+marshmallow==3.18.0
+marshmallow-enum==1.5.1
+marshmallow-sqlalchemy==0.28.1
