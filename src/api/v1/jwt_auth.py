@@ -1,18 +1,41 @@
+from datetime import datetime
 from functools import wraps
-
-from flask_jwt_extended import (JWTManager,
-                                set_access_cookies,
+from flask_jwt_extended import (
                                 verify_jwt_in_request,
-                                get_jwt, 
+                                get_jwt_identity,
                                 create_access_token,
                                 create_refresh_token
                                 )
 
+from src.db.redis_client import redis_cli
+from src.db import errors
 
 def generate_jwt_tokens(token_data:dict):
+    now = datetime.now().timestamp()
+    token_data.update({'created':now})
     new_access_token = create_access_token(identity=token_data) 
-    print('сделали access_token', new_access_token)
     new_refresh_token = create_refresh_token(identity=token_data)
-    print('сделали refresh_token', new_refresh_token)
     return new_access_token, new_refresh_token
 
+
+def custom_jwt_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            verify_jwt_in_request()
+            jwt_data = get_jwt_identity()
+            user_login, token_created = jwt_data['user_login'], jwt_data['created']
+            
+            # если в базе есть инфа о "выходе со всех аккаунтов", 
+            # заставляем залогиниться, если текущий токены был создан до этого момента  
+            last_total_logout = redis_cli.get(user_login)
+            if not last_total_logout:
+                return fn()
+            last_total_logout = float(last_total_logout.decode('utf-8'))
+            if last_total_logout and last_total_logout < token_created:
+                return fn() 
+            raise errors.Forbidden(reason='Залогинься')
+
+        return decorator
+
+    return wrapper
