@@ -1,43 +1,45 @@
+import uuid
 from datetime import datetime
+
 from sqlalchemy.orm import Session
 
-from src.models.models import User, RefreshTokens, Role
-from src.models.schemas import RoleSchema
+from src.models.models import User, Role, SessionHistory
+from src.models.schemas import PydanticRole, PydanticSessions
 from src.db.db import db_session
-
-#TODO: сделать кастомную ошибку
+from src.db import errors
 
 
 class UserManager():
     def __init__(self, session: Session) -> None:
         self.session = session
+        self.session_history_schema = PydanticSessions
 
-    def get_user_by_login(self, login:str)->User:
-        existing_user = self.session.query(User).filter_by(login=login).first() 
+    def get_user_by_login(self, login: str) -> User:
+        existing_user = self.session.query(User).filter_by(login=login).first()
         if not existing_user:
-            raise ValueError('нет такого юзера')
+            raise errors.CustomNotFoundError(reason=f'user {login}')
         return existing_user
 
-    def get_user_by_id(self, user_id:str)->User:
-        existing_user = self.session.query(User).filter_by(id=user_id).first() 
+    def get_user_by_id(self, user_id: str) -> User:
+        existing_user = self.session.query(User).filter_by(id=user_id).first()
         if not existing_user:
-            raise ValueError('нет такого юзера')
+            raise errors.CustomNotFoundError({user_id})
         return existing_user
 
-    def change_password(self, login:str, password:str, new_password:str):
+    def change_password(self, login: str, password: str, new_password: str):
         user = self.get_user_by_login(login)
         if user.check_password(password):
             user.set_password(new_password)
             self.session.add(user)
             self.session.commit()
         else:
-            raise ValueError('направильный пароль')
+            raise errors.Forbidden('неправильный пароль')
 
-    def register_user(self, login:str, password:str) -> User:
+    def register_user(self, login: str, password: str) -> User:
         query = self.session.query(User)
         user = query.filter_by(login=login).first()
         if user:
-            raise ValueError('такой юзер уже есть')
+            raise errors.AlreadyExistsError(f'user {login}')
         if not user:
             user = User(login=login)
             user.set_password(password)
@@ -45,76 +47,113 @@ class UserManager():
             self.session.commit()
         return user
 
-    def login_user(self, login:str, password:str) -> User|None:
+    def login_user(self, login: str, password: str, user_agent: str) -> User | None:
         query = self.session.query(User)
         user = query.filter_by(login=login).first()
-        
+
         if not user:
-            raise ValueError('такого юзера нет')
+            raise errors.CustomNotFoundError(f'user {login}')
         if user.check_password(password):
-            return user
-        raise ValueError('неправильный пароль')
-
-
-class TokenManager(UserManager):
-    def __init__(self, session: Session) -> None:
-        self.session = session
-
-    def update_refresh_token(self, user_id:str, new_refresh_token:str, expiration_datetime:datetime):
-        """
-        если у юзера нет refresh_token - добавляем
-        если есть - обвновляем
-        """
-        refresh_token_for_db = RefreshTokens.query.filter_by(user_id=user_id).first()
-        if not refresh_token_for_db:
-            refresh_token_for_db = RefreshTokens(user_id=user_id, token=new_refresh_token, token_expiration_date=expiration_datetime)
-            self.session.add(refresh_token_for_db)
-            self.db.session.commit()
-        else:
-            refresh_token_for_db.token_expiration_date = expiration_datetime
-            refresh_token_for_db.token = new_refresh_token
+            session_action = SessionHistory(id=str(uuid.uuid1(
+            )), user_id=user.id, user_agent=user_agent, action='login', date=datetime.now())
+            self.session.add(session_action)
             self.session.commit()
+            return user
+        raise errors.Forbidden('неправильный пароль')
 
-    def check_if_refresh_token_is_fresh(self, user_id:str):
-        user = self.get_user_by_id(user_id)
-        token = RefreshTokens.query.filter_by(user_id=user.id).first()
-        if datetime.now() < token.token_expiration_date:
-            return True
-        return False
+    def get_user_sessions(self, login: str) -> list[str] | None:
+        user = self.get_user_by_login(login)
+        sessions = self.session.query(
+            SessionHistory).filter_by(user_id=user.id).all()
+        if not sessions:
+            return []
+        parsed_sessions = [self.session_history_schema.from_orm(
+            sess).json() for sess in sessions]
+        return parsed_sessions
 
-            
+    def logout_user(self, login, user_agent):
+        user = self.get_user_by_login(login)
+        session_action = SessionHistory(id=str(uuid.uuid1(
+        )), user_id=user.id, user_agent=user_agent, action='logout', date=datetime.now())
+        self.session.add(session_action)
+        self.session.commit()
+
+
 class RoleManager(UserManager):
     def __init__(self, session: Session) -> None:
         self.session = session
+        self.role_schema = PydanticRole
 
     def add_role(self, role_name):
-        role = Role(name=role_name)
-        self.session.add(role)
-        self.session.commit()
-        return f'{role_name} добавлена'
+        try:
+            role = self.get_role_by_name(role_name)
+            if role:
+                raise errors.AlreadyExistsError(f'роль "{role_name}"')
+        except errors.CustomNotFoundError:
+            role = Role(id=str(uuid.uuid1()), name=role_name)
+            self.session.add(role)
+            self.session.commit()
+            return f'роль {role_name} добавлена'
 
-    def get_user_roles(self, user_id:str)->list[str]|None:
+    def get_user_roles_by_id(self, user_id: str) -> list[str] | None:
+        self.session_history_schema = SessionHistory
         user = self.get_user_by_id(user_id)
         return user.roles
-    
-    def get_role_by_name(self, role_name:str)->Role|None:  
+
+    def get_user_roles_by_login(self, login: str) -> list[str] | None:
+        user = self.get_user_by_login(login)
+        if not user.roles:
+            return []
+        parsed_roles = [self.role_schema.from_orm(
+            role).name for role in user.roles]
+        return parsed_roles
+
+    def get_role_by_name(self, role_name: str) -> Role | None:
         role = self.session.query(Role).filter_by(name=role_name).first()
         if not role:
-            raise ValueError(f'роли {role} нет в базе!')
+            raise errors.CustomNotFoundError(f'role_name {role_name}')
         return role
 
-    def add_user_role(self, user_id:str, role_name:str):
-        user = self.get_user_by_id(user_id)
+    def add_user_a_role(self, login: str, role_name: str):
+        user = self.get_user_by_login(login)
         role = self.get_role_by_name(role_name)
-        role_schema = RoleSchema(many=True)
-        user_rolser_parsed = [role['name'] for role in role_schema.dump(user.roles)]
-        if role in user_rolser_parsed:
-            raise ValueError('такая роль у юзера уже есть')
+
+        user_rolser_parsed = [self.role_schema.from_orm(
+            user_role).name for user_role in user.roles]
+        if role_name in user_rolser_parsed:
+            raise errors.AlreadyExistsError(
+                f'у юзера {login} уже есть роль {role_name}. ')
         user.roles.append(role)
         self.session.add(user)
         self.session.commit()
-        return f'добавили {role} юзеру {user_id}'
+        return f'добавили {role} юзеру {login}'
 
+    def remove_role_from_user(self, login: str, role_name: str):
+        user = self.get_user_by_login(login)
+        role = self.get_role_by_name(role_name)
+        user_rolser_parsed = [self.role_schema.from_orm(
+            user_role).name for user_role in user.roles]
+        if role_name not in user_rolser_parsed:
+            raise errors.CustomNotFoundError(
+                f'у юзера {login} нет роли {role_name} )')
+        user.roles.remove(role)
+        self.session.add(user)
+        self.session.commit()
+        return f'удалили {role_name} юзеру {login}'
+
+    def rename_role(self, role_name, new_role_name):
+        role = self.get_role_by_name(role_name)
+        role.name = new_role_name
+        self.session.add(role)
+        self.session.commit()
+        return f'переименовали роль {role_name} на {new_role_name}'
+
+    def get_all_roles(self):
+        roles = self.session.query(Role).all()
+        if not roles:
+            return roles
+        roles = [self.role_schema.from_orm(role).name for role in roles]
+        return roles
 
 
 class DataBaseManager():
@@ -122,7 +161,6 @@ class DataBaseManager():
         self.session = session
         self.users = UserManager(session)
         self.roles = RoleManager(session)
-        self.tokens = TokenManager(session) 
 
 
 db_manager = DataBaseManager(db_session)

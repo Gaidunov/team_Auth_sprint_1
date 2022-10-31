@@ -1,9 +1,8 @@
 
-from http import HTTPStatus
+from flask import Blueprint
+from src.api.v1.jwt_auth import custom_jwt_required
+from src.db.errors import catch_http_errors
 
-from flask import Blueprint, request, make_response
-from src.db.manager import db_manager
-from flask_jwt_extended import jwt_required, get_jwt
 
 routes = Blueprint('movies', __name__)
 
@@ -14,7 +13,7 @@ def public_data():
 
 
 @routes.get('/protected')
-@jwt_required()
+@catch_http_errors
+@custom_jwt_required()
 def data_for_logged_users():
-    """отдаст только если в куках access token"""
     return 'protected data'
