@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  auth_api:
+    build: .
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:6.2-alpine
+    expose:
+      - "6379"
+    command: redis-server --requirepass ${redis_password}
+    volumes:
+      - redis:/data
+    env_file:
+      - .env
+
+volumes:
+  redis:

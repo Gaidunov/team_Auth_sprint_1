@@ -12,3 +12,8 @@ python -m src.app
 в /src/models лежит openapi_example.py там пример как из пайдантика сделать openapi
 
 в /db/errors.py кастомные ошибки и декоратор catch_http_errors, который ловит их во вьюхах и отдает юзеру json ошибку с указанием че не так. это позволяет не делать во вьюхах try except
+
+
+### запуск linter
+    docker-compose exec auth_api bash
+    flake8 ./
