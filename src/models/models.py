@@ -19,40 +19,69 @@ users_n_roles = Table(
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
+    id = Column(
+        Text(length=100),
+        primary_key=True,
+        default=str(uuid.uuid1()),
+        unique=True,
+        nullable=False
+    )
     login = Column(String, unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
-    roles = relationship("Role", secondary=users_n_roles, back_populates="users")
+    roles = relationship(
+        "Role",
+        secondary=users_n_roles,
+        back_populates="users"
+    )
     sessions = relationship('SessionHistory')
 
-    def set_password(self, password):   
+    def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-    
+
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
     def __repr__(self):
-        return f'<User {self.login}>' 
+        return f'<User {self.login}>'
 
 
 USER_ACTIONS = ['login', 'logout']
 
+
 class SessionHistory(Base):
     __tablename__ = 'session_history'
 
-    id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
-    user_id = Column(Text(length=100), ForeignKey("users.id"))
+    id = Column(
+        Text(length=100),
+        primary_key=True,
+        default=str(uuid.uuid1()),
+        unique=True,
+        nullable=False
+    )
+    user_id = Column(
+        Text(length=100),
+        ForeignKey("users.id")
+    )
     date = Column(DateTime)
     action = Column(Enum(*USER_ACTIONS))
     user_agent = Column(Text(length=100))
-    
+
 
 class Role(Base):
     __tablename__ = 'roles'
-    
-    id = Column(Text(length=100), primary_key=True, default=str(uuid.uuid1()), unique=True, nullable=False)
-    name = Column(Text(length=100), unique=True, nullable=False)
-    users = relationship("User", secondary=users_n_roles, back_populates="roles")
-    def __repr__(self):
-        return f'<Role {self.name}>' 
 
+    id = Column(
+        Text(length=100),
+        primary_key=True,
+        default=str(uuid.uuid1()),
+        unique=True, nullable=False
+    )
+    name = Column(Text(length=100), unique=True, nullable=False)
+    users = relationship(
+        "User",
+        secondary=users_n_roles,
+        back_populates="roles"
+    )
+
+    def __repr__(self):
+        return f'<Role {self.name}>'

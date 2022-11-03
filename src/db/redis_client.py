@@ -1,8 +1,7 @@
 import redis
+from ..config import redis_settings
 
-
-class RedisCli:
-    def __init__(self) -> None:
-        self = redis.Redis(host='localhost', port=6379, db=0)
-
-redis_cli = redis.Redis(host='localhost', port=6379, db=0)
+redis_cli = redis.Redis(
+    host=redis_settings.host,
+    port=redis_settings.port,
+)

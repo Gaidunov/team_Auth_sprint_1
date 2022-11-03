@@ -19,7 +19,7 @@ routes = Blueprint('users', __name__)
 
 
 @routes.post('account/register')
-@catch_http_errors # декоратор, который ловит кастомные ошибки в manager.py и вывыодит их в json
+@catch_http_errors
 def register():
     body = request.json
     user_login, user_pass = body['login'], body['pass']
@@ -32,9 +32,11 @@ def register():
 @catch_http_errors
 def change_password():
     body = request.json
-    user_login, user_pass, new_passw = body['login'], body['pass'], body['new_pass']
+    user_login = body['login']
+    user_pass = body['pass']
+    new_passw = body['new_pass']
     db_manager.users.change_password(user_login, user_pass, new_passw)
-    response = make_response(f'сменили пароль', HTTPStatus.OK)
+    response = make_response('сменили пароль', HTTPStatus.OK)
     return response
 
 
@@ -43,9 +45,10 @@ def change_password():
 @catch_http_errors
 def logout_all_devices():
     """
-    1. добавляяем в редис протухшего юзера 
+    1. добавляяем в редис протухшего юзера
     2.добалвяем в редис время тотального логаута,
-    с которым потом будем сравнивать дату из токена в jwt_auth.custom_jwt_required
+    с которым потом будем сравнивать дату из токена
+    в jwt_auth.custom_jwt_required
     """
     jwt_data = get_jwt_identity()
     user_login = jwt_data['user_login']
@@ -62,7 +65,8 @@ def logout_all_devices():
 @jwt_required()
 def logout():
     """
-    1. добавляем токен в черный список (проверяется автоматически в @jwt_required() )
+    1. добавляем токен в черный список
+    (проверяется автоматически в @jwt_required() )
     2. записываем действие в историю
     """
     jwt_data = get_jwt_identity()
