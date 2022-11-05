@@ -86,8 +86,12 @@ def login():
     user_login, user_pass = body['login'], body['pass']
     user_agent = request.headers.get('User-Agent')
     user = db_manager.users.login_user(user_login, user_pass, user_agent)
+    user_roles = db_manager.roles.get_user_roles_by_login(user_login)
+    
     user_token_data = {'user_id': user.id,
-                       'user_login': user_login, 'user_agent': user_agent}
+                       'user_login': user_login,
+                       'user_roles':user_roles, 
+                       'user_agent': user_agent}
     access_token, refresh_token = generate_jwt_tokens(user_token_data)
     response = make_response(f'юзер {user_login} залогинен')
     set_access_cookies(response, access_token)
