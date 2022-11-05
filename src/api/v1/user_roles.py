@@ -7,7 +7,6 @@ routes = Blueprint('users_roles', __name__)
 
 @routes.get('/<string:login>')
 def add_user_a_role(login):
-
     user = db_manager.users.get_user_roles(login)
     return {
         'user_id': user.id,

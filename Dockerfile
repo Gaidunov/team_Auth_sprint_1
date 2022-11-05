@@ -9,4 +9,6 @@ RUN  pip install --upgrade pip \
 
 COPY . .
 
-ENTRYPOINT ["python", "-m", "src.app"]
+RUN export  FLASK_APP=src.app
+
+ENTRYPOINT ["flask", "run"]
