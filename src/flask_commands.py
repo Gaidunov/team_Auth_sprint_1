@@ -4,6 +4,7 @@ from src.db.manager import db_manager
 from src.db.errors import AlreadyExistsError 
 commands_bp = Blueprint('commands', __name__)
 
+
 @commands_bp.cli.command('create-super-user')
 @click.argument('name')
 @click.password_option()

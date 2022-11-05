@@ -1,14 +1,14 @@
 from http import HTTPStatus
 from datetime import datetime, timedelta
-from flask import Blueprint, request, make_response, jsonify
+from flask import Blueprint, request, make_response, jsonify, Response
 from flask_jwt_extended import (
-                                set_access_cookies,
-                                set_refresh_cookies,
-                                get_jwt,
-                                create_access_token,
-                                get_jwt_identity,
-                                jwt_required
-                                )
+    set_access_cookies,
+    set_refresh_cookies,
+    get_jwt,
+    create_access_token,
+    get_jwt_identity,
+    jwt_required
+)
 
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
@@ -88,10 +88,12 @@ def login():
     user = db_manager.users.login_user(user_login, user_pass, user_agent)
     user_roles = db_manager.roles.get_user_roles_by_login(user_login)
     
-    user_token_data = {'user_id': user.id,
-                       'user_login': user_login,
-                       'user_roles':user_roles, 
-                       'user_agent': user_agent}
+    user_token_data = {
+        'user_id': user.id,
+        'user_login': user_login,
+        'user_roles': user_roles,
+        'user_agent': user_agent
+    }
     access_token, refresh_token = generate_jwt_tokens(user_token_data)
     response = make_response(f'юзер {user_login} залогинен')
     set_access_cookies(response, access_token)
@@ -101,7 +103,7 @@ def login():
 
 @routes.post("account/refresh_token")
 @jwt_required(refresh=True)
-def refresh():
+def refresh() -> Response:
     """обновляем access_token"""
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
@@ -110,20 +112,27 @@ def refresh():
 
 @routes.get('/<string:login>/roles')
 @catch_http_errors
-def get_user_roles(login):
-    roles = db_manager.roles.get_user_roles_by_login(login)
+def get_user_roles(user_login: str) -> dict:
+    roles = db_manager.roles.get_user_roles_by_login(
+        user_login
+    )
     return roles
 
 
 @routes.get('/<string:login>/sessions')
 @catch_http_errors
-def get_user_session(login):
-    sessions = db_manager.users.get_user_sessions(login)
+def get_user_session(user_login: str) -> dict:
+    sessions = db_manager.users.get_user_sessions(
+        user_login
+    )
     return sessions
 
 
 @routes.get('/<string:login>')
 @catch_http_errors
-def get_user_by_loging(login):
-    user = db_manager.users.get_user_by_login(login)
-    return {'user_id': user.id, 'login': user.login}
+def get_user_by_loging(user_login: str) -> dict:
+    user = db_manager.users.get_user_by_login(user_login)
+    return {
+        'user_id': user.id,
+        'login': user.login,
+    }

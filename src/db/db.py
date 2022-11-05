@@ -1,11 +1,12 @@
 import os
+from src.config import flask_app_settings
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-DATABASE_URI = os.environ['DATABASE_URI']
-
+# DATABASE_URI = flask_app_settings.database_uri
+DATABASE_URI = 'sqlite:///API_DB.db?check_same_thread=False'
 
 engine = create_engine(DATABASE_URI)
 db_session = scoped_session(sessionmaker(bind=engine))

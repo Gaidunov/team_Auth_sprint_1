@@ -9,7 +9,7 @@ from src.db.db import db_session
 from src.db import errors
 
 
-class UserManager():
+class UserManager:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.session_history_schema = PydanticSessions
@@ -185,6 +185,7 @@ class RoleManager(UserManager):
         roles = [self.role_schema.from_orm(role).name for role in roles]
         return roles
 
+
 class Utils(RoleManager):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
@@ -193,7 +194,6 @@ class Utils(RoleManager):
     def create_super_user(self, name, password):
         new_super_user = self.register_user(name, password)
         self.add_user_a_role(new_super_user.login, role_name='superuser')
-
 
     def prepopulate_db(self):
         roles = ['superuser', 'user']
