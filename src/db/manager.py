@@ -24,7 +24,6 @@ class UserManager():
         existing_user = self.session.query(User).filter_by(id=user_id).first()
         if not existing_user:
             raise errors.CustomNotFoundError(user_id)
-
         return existing_user
 
     def change_password(
@@ -186,12 +185,31 @@ class RoleManager(UserManager):
         roles = [self.role_schema.from_orm(role).name for role in roles]
         return roles
 
+class Utils(RoleManager):
+    def __init__(self, session: Session) -> None:
+        super().__init__(session)
+        self.session = session
+
+    def create_super_user(self, name, password):
+        new_super_user = self.register_user(name, password)
+        self.add_user_a_role(new_super_user.login, role_name='superuser')
+
+
+    def prepopulate_db(self):
+        roles = ['superuser', 'user']
+        for r in roles:
+            try:
+                self.add_role(r)
+            except Exception as ex:
+                print(ex)
+
 
 class DataBaseManager:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.users = UserManager(session)
         self.roles = RoleManager(session)
+        self.utils = Utils(session)
 
 
 db_manager = DataBaseManager(db_session)
