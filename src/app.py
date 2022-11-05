@@ -6,23 +6,27 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_jwt_extended import JWTManager
 
-# Views
 from src.api.v1 import movies, roles, users
+from src.flask_commands import commands_bp
 from src.db.db import create_db
 from src.db.redis_client import redis_cli
 from src.models import models
+from src.db.manager import db_manager
 
 
 load_dotenv()
 
-
-def main():
+ 
+def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
+    
     with app.app_context():
-        create_db()
+        create_db() 
         models.db.init_app(app)
         models.db.create_all()
+        db_manager.utils.prepopulate_db() # добавяет дефолтные роли в БД
+
 
     app.config["JWT_SECRET_KEY"] = "secret"
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
@@ -46,9 +50,6 @@ def main():
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(movies.routes, url_prefix='/api/v1/movies/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
+    app.register_blueprint(commands_bp)
 
-    app.run(debug=True)
-
-
-if __name__ == '__main__':
-    main()
+    return app
