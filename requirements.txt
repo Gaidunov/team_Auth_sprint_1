@@ -2,11 +2,16 @@ flask_jwt_extended==4.4.4
 flask==2.2.2
 gevent==22.10.1
 pytz==2022.5
+
 Flask-SQLAlchemy==3.0.2
 SQLAlchemy==1.4.42
+pydantic_sqlalchemy==0.0.9
+
 redis==4.3.4
 python-dotenv==0.21.0
 openapi_schema_pydantic==1.2.4
 pydantic_sqlalchemy==0.0.9
+
+psycopg2-binary==2.9.5
 
 flake8==5.0.4

@@ -1,7 +1,9 @@
 import click
 from flask import Blueprint
 from src.db.manager import db_manager
-from src.db.errors import AlreadyExistsError 
+from src.db.errors import AlreadyExistsError
+
+
 commands_bp = Blueprint('commands', __name__)
 
 

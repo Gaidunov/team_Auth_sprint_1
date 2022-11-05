@@ -20,7 +20,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(
-        Text(length=100),
+        Text(),
         primary_key=True,
         default=str(uuid.uuid1()),
         unique=True,
@@ -52,31 +52,36 @@ class SessionHistory(Base):
     __tablename__ = 'session_history'
 
     id = Column(
-        Text(length=100),
+        Text(),
         primary_key=True,
         default=str(uuid.uuid1()),
         unique=True,
         nullable=False
     )
     user_id = Column(
-        Text(length=100),
+        Text(),
         ForeignKey("users.id")
     )
     date = Column(DateTime)
-    action = Column(Enum(*USER_ACTIONS))
-    user_agent = Column(Text(length=100))
+    action = Column(
+        Enum(
+            *USER_ACTIONS,
+            name='actions'
+        ),
+    )
+    user_agent = Column(Text())
 
 
 class Role(Base):
     __tablename__ = 'roles'
 
     id = Column(
-        Text(length=100),
+        Text(),
         primary_key=True,
         default=str(uuid.uuid1()),
         unique=True, nullable=False
     )
-    name = Column(Text(length=100), unique=True, nullable=False)
+    name = Column(Text(), unique=True, nullable=False)
     users = relationship(
         "User",
         secondary=users_n_roles,

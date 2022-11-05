@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import wraps
+from typing import Optional
 
 from flask_jwt_extended import (
     verify_jwt_in_request,
@@ -22,18 +23,22 @@ def generate_jwt_tokens(token_data: dict):
     return new_access_token, new_refresh_token
 
 
-def custom_jwt_required(admin_only:bool=None):
+def custom_jwt_required(
+    admin_only: Optional[bool] = None
+):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
             jwt_data = get_jwt_identity()
-            
-            if admin_only: # в ручки управления ролями пускаются только суперюзеры
+
+            if admin_only:
+                # в ручки управления ролями
+                # пускаются только суперюзеры
                 user_roles = jwt_data['user_roles']
                 if 'superuser' not in user_roles:
                     raise errors.Forbidden(reason='вход только для админов')
- 
+
             user_login = jwt_data['user_login']
             token_created = jwt_data['created']
             # если в базе есть инфа о "выходе со всех аккаунтов",

@@ -5,22 +5,24 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 
 from src.api.v1 import roles, users
-from src.config import flask_app_settings
 from src.db.db import create_db
 from src.db.manager import db_manager
 from src.db.redis_client import redis_cli
 from src.flask_commands import commands_bp
 from src.models import models
+from src.config import (
+    DB_CONNECTION_STRING,
+    flask_app_settings,
+)
 
 load_dotenv()
 
- 
-def create_app():
+
+def create_app() -> Flask:
     app = Flask(__name__)
-    # app.config['SQLALCHEMY_DATABASE_URI'] = flask_app_settings.database_uri
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///API_DB.db?check_same_thread=False'
+    app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
     with app.app_context():
-        create_db() 
+        create_db()
         models.db.init_app(app)
         models.db.create_all()
         db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
@@ -28,12 +30,10 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = 'secret'
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(
-        # minutes=int(flask_app_settings.jwt_access_token_ttl)
-        minutes=10
+        minutes=int(flask_app_settings.jwt_access_token_ttl)
     )
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(
-        # minutes=int(flask_app_settings.jwt_refresh_token_ttl)
-        minutes=43800
+        minutes=int(flask_app_settings.jwt_refresh_token_ttl)
     )
     app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
