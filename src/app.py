@@ -16,8 +16,7 @@ from src.config import (
 )
 
 SWAGGER_URL = '/api/docs'  
-# API_URL = '/static/OpenApi3.json' # изначальный
-API_URL = '/static/new_openapi.json' # который ты вторым прислал
+API_URL = '/static/OpenApi3.json' 
 
 
 swaggerui_blueprint = get_swaggerui_blueprint(
