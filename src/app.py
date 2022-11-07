@@ -22,9 +22,9 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
     with app.app_context():
-        create_db()
+        # create_db()
         models.db.init_app(app)
-        models.db.create_all()
+        # models.db.create_all()
         db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
 
     app.config['JWT_SECRET_KEY'] = 'secret'
