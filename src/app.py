@@ -1,11 +1,11 @@
 from datetime import timedelta
 
-from dotenv import load_dotenv
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from flask_swagger_ui import get_swaggerui_blueprint
+
 
 from src.api.v1 import roles, users
-from src.db.db import create_db
 from src.db.manager import db_manager
 from src.db.redis_client import redis_cli
 from src.flask_commands import commands_bp
@@ -15,17 +15,25 @@ from src.config import (
     flask_app_settings,
 )
 
-load_dotenv()
+SWAGGER_URL = '/api/docs'  
+# API_URL = '/static/OpenApi3.json' # изначальный
+API_URL = '/static/new_openapi.json' # который ты вторым прислал
 
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,  
+    API_URL,
+    config={  # Swagger UI config overrides
+        'app_name': "Test application"
+    },
+
+)
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
-    with app.app_context():
-        # create_db()
-        models.db.init_app(app)
-        # models.db.create_all()
-        db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
+    models.db.init_app(app)
+    db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
 
     app.config['JWT_SECRET_KEY'] = 'secret'
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
@@ -46,8 +54,10 @@ def create_app() -> Flask:
         token_in_redis = redis_cli.get(jti)
         return token_in_redis is not None
 
+    
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
+    app.register_blueprint(swaggerui_blueprint)
     app.register_blueprint(commands_bp)
 
     return app

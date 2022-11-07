@@ -17,3 +17,5 @@ pydantic_sqlalchemy==0.0.9
 psycopg2-binary==2.9.5
 
 flake8==5.0.4
+    
+flask-swagger-ui==4.11.1

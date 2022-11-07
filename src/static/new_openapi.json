@@ -1,0 +1,1463 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "HAR Imported API",
+    "contact": {},
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000/api/v1/",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/roles/all": {
+      "post": {
+        "summary": "RolesAll_POST",
+        "description": "get all roles",
+        "operationId": "RolesAll_POST",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:35:49 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "3"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "",
+                  "example": []
+                },
+                "example": []
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/roles/change-role-name": {
+      "patch": {
+        "summary": "RolesChangeRoleName_PATCH",
+        "description": "rename role",
+        "operationId": "RolesChangeRoleName_PATCH",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Request"
+                  },
+                  {
+                    "example": {
+                      "role": "user",
+                      "new_name_role_name": "superuser"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "role": "user",
+                "new_name_role_name": "superuser"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "ACCEPTED",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Sun, 30 Oct 2022 08:38:09 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "55"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "переименовали роль user на superuser"
+                },
+                "example": "переименовали роль user на superuser"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/roles/remove-role-from-user": {
+      "post": {
+        "summary": "RolesRemoveRoleFromUser_POST",
+        "description": "remove roles from user",
+        "operationId": "RolesRemoveRoleFromUser_POST",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Request1"
+                  },
+                  {
+                    "example": {
+                      "role": "superuser",
+                      "login": "kirill"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "role": "superuser",
+                "login": "kirill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "NOT FOUND",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Sun, 30 Oct 2022 08:46:44 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "160"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Response"
+                    },
+                    {
+                      "example": {
+                        "error": "Not found",
+                        "reason": "у юзера kirill нет роли superuser )",
+                        "status": 404
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "error": "Not found",
+                  "reason": "у юзера kirill нет роли superuser )",
+                  "status": 404
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/roles/add-to-user": {
+      "post": {
+        "summary": "RolesAddToUser_POST",
+        "description": "add users a role",
+        "operationId": "RolesAddToUser_POST",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Request1"
+                  },
+                  {
+                    "example": {
+                      "role": "admin",
+                      "login": "kirill"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "role": "admin",
+                "login": "kirill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:36:09 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "47"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "добавили <Role admin> юзеру kirill"
+                },
+                "example": "добавили <Role admin> юзеру kirill"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/roles/add": {
+      "post": {
+        "summary": "RolesAdd_POST",
+        "description": "add role",
+        "operationId": "RolesAdd_POST",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Request3"
+                  },
+                  {
+                    "example": {
+                      "role": "admin"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "role": "admin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:35:52 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "33"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "роль admin добавлена"
+                },
+                "example": "роль admin добавлена"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/movies/protected": {
+      "post": {
+        "summary": "MoviesProtected_POST",
+        "description": "protected_data",
+        "operationId": "MoviesProtected_POST",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "aaa"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:39:04 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "14"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "protected data"
+                },
+                "example": "protected data"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/account/login": {
+      "post": {
+        "summary": "UsersAccountLogin_POST",
+        "description": "login",
+        "operationId": "UsersAccountLogin_POST",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Request4"
+                  },
+                  {
+                    "example": {
+                      "login": "kirill",
+                      "pass": "password1"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "login": "kirill",
+                "pass": "password1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:38:50 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "34"
+                  }
+                }
+              },
+              "Set-Cookie": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY2NzIwMTkzMCwianRpIjoiMWY5NDA1Y2EtZTQ1Ny00ZDc0LThiZjgtYWM4OGI2MzJjOTMyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJ1c2VyX2lkIjoiMDA1NzMzYjItNThlZS0xMWVkLWFiYzItMDAxNTVkZjZjZGQ1IiwidXNlcl9sb2dpbiI6ImtpcmlsbCIsInVzZXJfYWdlbnQiOiJpbnNvbW5pYS8yMDIyLjYuMCIsImNyZWF0ZWQiOjE2NjcyMDE5MzAuOTc1Njk3fSwibmJmIjoxNjY3MjAxOTMwLCJleHAiOjE2NjcyMDI1MzB9.XdlHOkqLJcEqswRBVavG1C8AktAo-eYtnvJo4CPLUig; HttpOnly; Path=/"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "юзер kirill залогинен"
+                },
+                "example": "юзер kirill залогинен"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/{login}/roles": {
+      "post": {
+        "summary": "UsersKirillRoles_POST",
+        "description": "get user roles",
+        "operationId": "UsersKirillRoles_POST",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:36:15 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "14"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "",
+                  "example": [
+                    "admin"
+                  ]
+                },
+                "example": [
+                  "admin"
+                ]
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/{login}/sessions": {
+      "post": {
+        "summary": "UsersKirillSessions_POST",
+        "description": "get user sessions",
+        "operationId": "UsersKirillSessions_POST",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:33:46 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "444"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "",
+                  "example": [
+                    "{\"date\": \"2022-10-31T10:31:51.520508\", \"action\": \"login\", \"user_agent\": \"insomnia/2022.6.0\"}",
+                    "{\"date\": \"2022-10-31T10:33:31.141268\", \"action\": \"logout\", \"user_agent\": \"insomnia/2022.6.0\"}",
+                    "{\"date\": \"2022-10-31T10:33:33.939489\", \"action\": \"login\", \"user_agent\": \"insomnia/2022.6.0\"}",
+                    "{\"date\": \"2022-10-31T10:33:43.426381\", \"action\": \"login\", \"user_agent\": \"insomnia/2022.6.0\"}"
+                  ]
+                },
+                "example": [
+                  "{\"date\": \"2022-10-31T10:31:51.520508\", \"action\": \"login\", \"user_agent\": \"insomnia/2022.6.0\"}",
+                  "{\"date\": \"2022-10-31T10:33:31.141268\", \"action\": \"logout\", \"user_agent\": \"insomnia/2022.6.0\"}",
+                  "{\"date\": \"2022-10-31T10:33:33.939489\", \"action\": \"login\", \"user_agent\": \"insomnia/2022.6.0\"}",
+                  "{\"date\": \"2022-10-31T10:33:43.426381\", \"action\": \"login\", \"user_agent\": \"insomnia/2022.6.0\"}"
+                ]
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/{login}": {
+      "post": {
+        "summary": "UsersKirill_POST",
+        "description": "get user by login",
+        "operationId": "UsersKirill_POST",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "Error",
+            "headers": {},
+            "content": {}
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/account/change_password": {
+      "post": {
+        "summary": "UsersAccountChangePassword_POST",
+        "description": "change pass",
+        "operationId": "UsersAccountChangePassword_POST",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Request5"
+                  },
+                  {
+                    "example": {
+                      "login": "kirill",
+                      "pass": "password1",
+                      "new_pass": "password"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "login": "kirill",
+                "pass": "password1",
+                "new_pass": "password"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:39:01 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "27"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "сменили пароль"
+                },
+                "example": "сменили пароль"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/account/logout": {
+      "post": {
+        "summary": "UsersAccountLogout_POST",
+        "description": "logout",
+        "operationId": "UsersAccountLogout_POST",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:33:31 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "36"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "юзер kirill разлогинен"
+                },
+                "example": "юзер kirill разлогинен"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/account/logout-all": {
+      "post": {
+        "summary": "UsersAccountLogoutAll_POST",
+        "description": "logout-all",
+        "operationId": "UsersAccountLogoutAll_POST",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:33:41 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "73"
+                  }
+                }
+              },
+              "Set-Cookie": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "access_token_cookie=\"deleted access_token\"; HttpOnly; Path=/"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "юзер kirill разлогинен на всех устройствах"
+                },
+                "example": "юзер kirill разлогинен на всех устройствах"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/account/register": {
+      "post": {
+        "summary": "UsersAccountRegister_POST",
+        "description": "register",
+        "operationId": "UsersAccountRegister_POST",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Request4"
+                  },
+                  {
+                    "example": {
+                      "login": "kirill",
+                      "pass": "password"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "login": "kirill",
+                "pass": "password"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:31:41 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "116"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Response1"
+                    },
+                    {
+                      "example": {
+                        "msg": "юзер kirill добавлен в БД"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "msg": "юзер kirill добавлен в БД"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/movies/public": {
+      "post": {
+        "summary": "MoviesPublic_POST",
+        "description": "public_data",
+        "operationId": "MoviesPublic_POST",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:09:23 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "11"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "text/html; charset=utf-8": {
+                "schema": {
+                  "type": "string",
+                  "example": "public data"
+                },
+                "example": "public data"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/users/account/refresh_token": {
+      "post": {
+        "summary": "UsersAccountRefreshToken_POST",
+        "description": "refresh token",
+        "operationId": "UsersAccountRefreshToken_POST",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Werkzeug/2.2.2 Python/3.10.6"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 31 Oct 2022 07:33:18 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "462"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "close"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Response2"
+                    },
+                    {
+                      "example": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY2NzIwMTU5OCwianRpIjoiMmRjNjEwYjEtOTg1ZS00OTA3LWI3ZWQtMmZmZDQ3MGYyYTY5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJ1c2VyX2lkIjoiMDA1NzMzYjItNThlZS0xMWVkLWFiYzItMDAxNTVkZjZjZGQ1IiwidXNlcl9sb2dpbiI6ImtpcmlsbCIsInVzZXJfYWdlbnQiOiJpbnNvbW5pYS8yMDIyLjYuMCIsImNyZWF0ZWQiOjE2NjcyMDE1MTEuNTQzNzg5fSwibmJmIjoxNjY3MjAxNTk4LCJleHAiOjE2NjcyMDIxOTh9.eX_Zwy_QaLXitxba_Rp35QhfYorm4XCqsCO-Gz26jD4"
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY2NzIwMTU5OCwianRpIjoiMmRjNjEwYjEtOTg1ZS00OTA3LWI3ZWQtMmZmZDQ3MGYyYTY5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJ1c2VyX2lkIjoiMDA1NzMzYjItNThlZS0xMWVkLWFiYzItMDAxNTVkZjZjZGQ1IiwidXNlcl9sb2dpbiI6ImtpcmlsbCIsInVzZXJfYWdlbnQiOiJpbnNvbW5pYS8yMDIyLjYuMCIsImNyZWF0ZWQiOjE2NjcyMDE1MTEuNTQzNzg5fSwibmJmIjoxNjY3MjAxNTk4LCJleHAiOjE2NjcyMDIxOTh9.eX_Zwy_QaLXitxba_Rp35QhfYorm4XCqsCO-Gz26jD4"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Request": {
+        "title": "Request",
+        "required": [
+          "role",
+          "new_name_role_name"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "new_name_role_name": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "role": "user",
+          "new_name_role_name": "superuser"
+        }
+      },
+      "Request1": {
+        "title": "Request1",
+        "required": [
+          "role",
+          "login"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "login": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "role": "superuser",
+          "login": "kirill"
+        }
+      },
+      "Response": {
+        "title": "Response",
+        "required": [
+          "error",
+          "reason",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "error": "Not found",
+          "reason": "у юзера kirill нет роли superuser )",
+          "status": 404
+        }
+      },
+      "Request3": {
+        "title": "Request3",
+        "required": [
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "role": "admin"
+        }
+      },
+      "Request4": {
+        "title": "Request4",
+        "required": [
+          "login",
+          "pass"
+        ],
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "pass": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "login": "kirill",
+          "pass": "password1"
+        }
+      },
+      "Request5": {
+        "title": "Request5",
+        "required": [
+          "login",
+          "pass",
+          "new_pass"
+        ],
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "pass": {
+            "type": "string"
+          },
+          "new_pass": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "login": "kirill",
+          "pass": "password1",
+          "new_pass": "password"
+        }
+      },
+      "Response1": {
+        "title": "Response1",
+        "required": [
+          "msg"
+        ],
+        "type": "object",
+        "properties": {
+          "msg": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "msg": "юзер kirill добавлен в БД"
+        }
+      },
+      "Response2": {
+        "title": "Response2",
+        "required": [
+          "access_token"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY2NzIwMTU5OCwianRpIjoiMmRjNjEwYjEtOTg1ZS00OTA3LWI3ZWQtMmZmZDQ3MGYyYTY5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6eyJ1c2VyX2lkIjoiMDA1NzMzYjItNThlZS0xMWVkLWFiYzItMDAxNTVkZjZjZGQ1IiwidXNlcl9sb2dpbiI6ImtpcmlsbCIsInVzZXJfYWdlbnQiOiJpbnNvbW5pYS8yMDIyLjYuMCIsImNyZWF0ZWQiOjE2NjcyMDE1MTEuNTQzNzg5fSwibmJmIjoxNjY3MjAxNTk4LCJleHAiOjE2NjcyMDIxOTh9.eX_Zwy_QaLXitxba_Rp35QhfYorm4XCqsCO-Gz26jD4"
+        }
+      }
+    }
+  },
+  "tags": []
+}
