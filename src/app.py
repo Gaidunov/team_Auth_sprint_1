@@ -2,8 +2,7 @@ from datetime import timedelta
 
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from flask_swagger_ui import get_swaggerui_blueprint
-
+from src.api.v1.doc_spectree import spec
 
 from src.api.v1 import roles, users
 from src.db.manager import db_manager
@@ -15,18 +14,6 @@ from src.config import (
     flask_app_settings,
 )
 
-SWAGGER_URL = '/api/docs'  
-API_URL = '/static/OpenApi3.json' 
-
-
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,  
-    API_URL,
-    config={  # Swagger UI config overrides
-        'app_name': "Test application"
-    },
-
-)
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -53,10 +40,10 @@ def create_app() -> Flask:
         token_in_redis = redis_cli.get(jti)
         return token_in_redis is not None
 
-    
+    spec.register(app)
+
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
-    app.register_blueprint(swaggerui_blueprint)
     app.register_blueprint(commands_bp)
 
     return app
