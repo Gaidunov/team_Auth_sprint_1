@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask import Blueprint, request
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Profile, Message
+from src.api.v1.doc_spectree import spec, Role, RoleLogin, RenRole, Cookies
 from src.db.errors import catch_http_errors
 from src.db.manager import db_manager
 from src.api.v1.jwt_auth import custom_jwt_required
@@ -15,7 +15,7 @@ routes = Blueprint('roles', __name__)
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["roles"]
+    json=Role, cookies=Cookies, tags=["roles"]
 )
 def add_user_role():
     role_name = request.json['role']
@@ -27,7 +27,7 @@ def add_user_role():
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["roles"]
+    json=RoleLogin, cookies=Cookies, tags=["roles"]
 )
 def add_role_to_user():
     role_name, login = request.json['role'], request.json['login']
@@ -39,7 +39,7 @@ def add_role_to_user():
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["roles"]
+    json=RoleLogin, cookies=Cookies, tags=["roles"]
 )
 def remove_role_from_user():
     role_name, login = request.json['role'], request.json['login']
@@ -51,7 +51,7 @@ def remove_role_from_user():
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["roles"]
+    json=RenRole, cookies=Cookies, tags=["roles"]
 )
 def rename_role():
     role_name = request.json['role']
@@ -63,7 +63,7 @@ def rename_role():
 @routes.get('all')
 @custom_jwt_required(admin_only=True)
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["roles"]
+    cookies=Cookies, tags=["roles"]
 )
 def all_roles():
     roles = db_manager.roles.get_all_roles()

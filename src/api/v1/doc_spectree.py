@@ -2,19 +2,32 @@ from spectree import SpecTree, Response
 from pydantic import BaseModel, Field, constr
 
 class Profile(BaseModel):
-    name: constr(min_length=2, max_length=40)  # constrained str
-    age: int = Field(..., gt=0, lt=150, description="user age(Human)")
+    login:str
+    password: str = Field(alias='pass')
 
-    class Config:
-        schema_extra = {
-            # provide an example
-            "example": {
-                "name": "very_important_user",
-                "age": 42,
-            }
-        }
+class ChPass(BaseModel):
+    login:str
+    password: str = Field(alias='pass')
+    newpassword: str = Field(alias='new_pass')
 
-class Message(BaseModel):
-    text: str
+class Query(BaseModel):
+    login:str
+    password: str = Field(alias='pass')
+    newpassword: str = Field(alias='new_pass')
+
+class Cookies(BaseModel):
+    access_token_cookie:str
+    refresh_token_cookie:str
+
+class Role(BaseModel):
+    role: str
+
+class RoleLogin(BaseModel):
+    role: str
+    login: str
+
+class RenRole(BaseModel):
+    role: str
+    new_name_role_name: str
 
 spec = SpecTree("flask")

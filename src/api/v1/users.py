@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 )
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Profile, Message
+from src.api.v1.doc_spectree import spec, Profile, ChPass, Query, Cookies
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens
@@ -23,7 +23,7 @@ routes = Blueprint('users', __name__)
 @routes.post('account/register')
 @catch_http_errors
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+    json=Profile, tags=["users"]
 )
 def register():
     body = request.json
@@ -36,7 +36,7 @@ def register():
 @jwt_required()
 @catch_http_errors
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+    json=ChPass, cookies=Cookies, tags=["users"]
 )
 def change_password():
     body = request.json
@@ -52,7 +52,7 @@ def change_password():
 @jwt_required()
 @catch_http_errors
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+     cookies=Cookies, tags=["users"]
 )
 def logout_all_devices():
     """
@@ -75,7 +75,7 @@ def logout_all_devices():
 @routes.get('account/logout')
 @jwt_required()
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+     cookies=Cookies, tags=["users"]
 )
 def logout():
     """
@@ -95,7 +95,7 @@ def logout():
 @routes.post('account/login')
 @catch_http_errors
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+    json=Profile, tags=["users"]
 )
 def login():
     """берем пароль из body post запроса"""
@@ -121,7 +121,7 @@ def login():
 @routes.post("account/refresh_token")
 @jwt_required(refresh=True)
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+     cookies=Cookies, tags=["users"]
 )
 def refresh() -> Response:
     """обновляем access_token"""
@@ -133,7 +133,7 @@ def refresh() -> Response:
 @routes.get('/<string:login>/roles')
 @catch_http_errors
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+    query=Query, cookies=Cookies, tags=["users"]
 )
 def get_user_roles(login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
@@ -145,7 +145,7 @@ def get_user_roles(login: str) -> dict:
 @routes.get('/<string:login>/sessions')
 @catch_http_errors
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+    query=Query, cookies=Cookies, tags=["users"]
 )
 def get_user_session(login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(
@@ -157,7 +157,7 @@ def get_user_session(login: str) -> dict:
 @routes.get('/<string:login>')
 @catch_http_errors
 @spec.validate(
-    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+    query=Query, cookies=Cookies, tags=["users"]
 )
 def get_user_by_loging(login: str) -> dict:
     user = db_manager.users.get_user_by_login(login)
