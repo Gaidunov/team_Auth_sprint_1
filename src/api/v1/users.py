@@ -9,7 +9,9 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required
 )
+from spectree import Response
 
+from src.api.v1.doc_spectree import spec, Profile, Message
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens
@@ -20,6 +22,9 @@ routes = Blueprint('users', __name__)
 
 @routes.post('account/register')
 @catch_http_errors
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def register():
     body = request.json
     user_login, user_pass = body['login'], body['pass']
@@ -30,6 +35,9 @@ def register():
 @routes.post('account/change_password')
 @jwt_required()
 @catch_http_errors
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def change_password():
     body = request.json
     user_login = body['login']
@@ -43,6 +51,9 @@ def change_password():
 @routes.get('account/logout-all')
 @jwt_required()
 @catch_http_errors
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def logout_all_devices():
     """
     1. добавляяем в редис протухшего юзера
@@ -63,6 +74,9 @@ def logout_all_devices():
 
 @routes.get('account/logout')
 @jwt_required()
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def logout():
     """
     1. добавляем токен в черный список
@@ -80,6 +94,9 @@ def logout():
 
 @routes.post('account/login')
 @catch_http_errors
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def login():
     """берем пароль из body post запроса"""
     body = request.json
@@ -103,6 +120,9 @@ def login():
 
 @routes.post("account/refresh_token")
 @jwt_required(refresh=True)
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def refresh() -> Response:
     """обновляем access_token"""
     identity = get_jwt_identity()
@@ -112,6 +132,9 @@ def refresh() -> Response:
 
 @routes.get('/<string:login>/roles')
 @catch_http_errors
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def get_user_roles(user_login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
         user_login
@@ -121,6 +144,9 @@ def get_user_roles(user_login: str) -> dict:
 
 @routes.get('/<string:login>/sessions')
 @catch_http_errors
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def get_user_session(user_login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(
         user_login
@@ -130,6 +156,9 @@ def get_user_session(user_login: str) -> dict:
 
 @routes.get('/<string:login>')
 @catch_http_errors
+@spec.validate(
+    json=Profile, resp=Response(HTTP_200=Message, HTTP_403=None), tags=["users"]
+)
 def get_user_by_loging(user_login: str) -> dict:
     user = db_manager.users.get_user_by_login(user_login)
     return {

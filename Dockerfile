@@ -9,6 +9,4 @@ RUN  pip install --upgrade pip \
 
 COPY . .
 
-RUN export  FLASK_APP=src.app
-
-ENTRYPOINT ["flask", "run"]
+ENTRYPOINT ["flask", "run", "--host=0.0.0.0", "--port=5000"] 

@@ -3,11 +3,14 @@ version: '3.7'
 services:
   auth_api:
     build: .
+    container_name: auth_api
     expose:
       - "5000"
     depends_on:
       - auth_db
       - redis
+    env_file:
+      - .env
 
   nginx:
     image: nginx:1.23.1
@@ -33,6 +36,7 @@ services:
   auth_db:
     tty: true
     image: postgres:14.5-alpine
+    
     volumes:
       - postgres-data:/var/lib/postgresql/data/
       - ./docker/init-script.sql:/docker-entrypoint-initdb.d/init-script.sql

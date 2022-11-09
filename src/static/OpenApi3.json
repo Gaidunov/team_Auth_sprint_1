@@ -637,12 +637,18 @@
         "security": []
       }
     },
-    "/users/kirill/roles": {
+    "/users/{user_login}/roles": {
       "get": {
-        "summary": "UsersKirillRoles_GET",
+        "summary": "Get user roles",
         "description": "get user roles",
         "operationId": "UsersKirillRoles_GET",
-        "parameters": [],
+        "parameters": [{
+          "in":"query",
+          "name":"user_roles",
+          "schema": {
+            "type": "string"
+                    },
+          "required":true}],
         "responses": {
           "200": {
             "description": "OK",
@@ -711,12 +717,18 @@
         "security": []
       }
     },
-    "/users/kirill/sessions": {
+    "/users/{user_login}/sessions": {
       "get": {
         "summary": "UsersKirillSessions_GET",
         "description": "get user sessions",
         "operationId": "UsersKirillSessions_GET",
-        "parameters": [],
+        "parameters": [{
+          "in":"query",
+          "name":"user_roles",
+          "schema": {
+            "type": "string"
+                    },
+          "required":true}],
         "responses": {
           "200": {
             "description": "OK",
@@ -791,12 +803,18 @@
         "security": []
       }
     },
-    "/users/kirill": {
+    "/users/{user_login}": {
       "get": {
         "summary": "UsersKirill_GET",
         "description": "get user by login",
         "operationId": "UsersKirill_GET",
-        "parameters": [],
+        "parameters": [{
+          "in":"query",
+          "name":"user_roles",
+          "schema": {
+            "type": "string"
+                    },
+          "required":true}],
         "responses": {
           "default": {
             "description": "Error",
