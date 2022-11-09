@@ -3,10 +3,11 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from src.core.logger import logger
+from src.db import errors
+from src.db.db import db_session
 from src.models.models import User, Role, SessionHistory
 from src.models.schemas import PydanticRole, PydanticSessions
-from src.db.db import db_session
-from src.db import errors
 
 
 class UserManager:
@@ -201,7 +202,7 @@ class Utils(RoleManager):
             try:
                 self.add_role(r)
             except Exception as ex:
-                print(ex)
+                logger.info(ex)
 
 
 class DataBaseManager:

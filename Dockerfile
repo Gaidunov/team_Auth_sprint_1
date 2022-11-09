@@ -9,6 +9,4 @@ RUN  pip install --upgrade pip \
 
 COPY . .
 
-RUN export  FLASK_APP=src.app
-
-ENTRYPOINT ["flask", "run"]
+ENV  FLASK_APP=src.app

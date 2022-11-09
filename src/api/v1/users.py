@@ -112,26 +112,26 @@ def refresh() -> Response:
 
 @routes.get('/<string:login>/roles')
 @catch_http_errors
-def get_user_roles(user_login: str) -> dict:
+def get_user_roles(login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
-        user_login
+        login
     )
     return roles
 
 
 @routes.get('/<string:login>/sessions')
 @catch_http_errors
-def get_user_session(user_login: str) -> dict:
+def get_user_session(login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(
-        user_login
+        login
     )
     return sessions
 
 
 @routes.get('/<string:login>')
 @catch_http_errors
-def get_user_by_loging(user_login: str) -> dict:
-    user = db_manager.users.get_user_by_login(user_login)
+def get_user_by_loging(login: str) -> dict:
+    user = db_manager.users.get_user_by_login(login)
     return {
         'user_id': user.id,
         'login': user.login,
