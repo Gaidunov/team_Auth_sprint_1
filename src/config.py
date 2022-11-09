@@ -8,6 +8,7 @@ class RedisSettings(BaseSettings):
     host: str
     port: int
     password: str
+
     class Config:
         env_file = ".env"
         env_file_encoding = 'utf-8'

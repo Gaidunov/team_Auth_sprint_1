@@ -9,4 +9,4 @@ RUN  pip install --upgrade pip \
 
 COPY . .
 
-ENTRYPOINT ["flask", "run", "--host=0.0.0.0", "--port=5000"] 
+ENV  FLASK_APP=src.app
