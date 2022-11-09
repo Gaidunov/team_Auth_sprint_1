@@ -1,11 +1,10 @@
 from datetime import timedelta
 
-from dotenv import load_dotenv
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from src.api.v1.doc_spectree import spec
 
 from src.api.v1 import roles, users
-from src.db.db import create_db
 from src.db.manager import db_manager
 from src.db.redis_client import redis_cli
 from src.flask_commands import commands_bp
@@ -15,17 +14,12 @@ from src.config import (
     flask_app_settings,
 )
 
-load_dotenv()
-
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
-    with app.app_context():
-        create_db()
-        models.db.init_app(app)
-        models.db.create_all()
-        db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
+    models.db.init_app(app)
+    db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
 
     app.config['JWT_SECRET_KEY'] = 'secret'
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
@@ -45,6 +39,8 @@ def create_app() -> Flask:
         jti = jwt_payload["jti"]
         token_in_redis = redis_cli.get(jti)
         return token_in_redis is not None
+
+    spec.register(app)
 
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')

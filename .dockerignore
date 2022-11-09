@@ -1,0 +1,7 @@
+# Kirill stuff
+win_env/
+lin_env/
+/lin_env
+/win_env
+*.db
+my_*
