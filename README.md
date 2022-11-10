@@ -17,8 +17,7 @@
 
 Создать пользователя с логином [name] и присвоить ему роль 'superuser'
 
-    flask commands create-super-user [name]
-
+    docker exec -it auth_api bash -c "flask commands create-super-user [name]"
 
 
 ### Линтер
