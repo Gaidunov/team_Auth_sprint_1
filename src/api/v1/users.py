@@ -14,7 +14,7 @@ from spectree import Response
 from src.api.v1.doc_spectree import spec, Profile, ChPass, Query, Cookies
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
-from src.api.v1.jwt_auth import generate_jwt_tokens
+from src.api.v1.jwt_auth import generate_jwt_tokens, custom_jwt_required
 from src.db.redis_client import redis_cli
 
 routes = Blueprint('users', __name__)
@@ -120,6 +120,7 @@ def login():
 
 @routes.post("account/refresh_token")
 @jwt_required(refresh=True)
+@custom_jwt_required()
 @spec.validate(
      cookies=Cookies, tags=["users"]
 )
@@ -132,8 +133,9 @@ def refresh() -> Response:
 
 @routes.get('/<string:login>/roles')
 @catch_http_errors
+@custom_jwt_required(admin_only=True)
 @spec.validate(
-    query=Query, cookies=Cookies, tags=["users"]
+    cookies=Cookies, path_parameter_descriptions={'loging':'это логин'}, tags=["users"]
 )
 def get_user_roles(login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
@@ -143,9 +145,10 @@ def get_user_roles(login: str) -> dict:
 
 
 @routes.get('/<string:login>/sessions')
+@custom_jwt_required(this_user_only=True)
 @catch_http_errors
 @spec.validate(
-    query=Query, cookies=Cookies, tags=["users"]
+   cookies=Cookies, tags=["users"]
 )
 def get_user_session(login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(

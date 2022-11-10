@@ -23,14 +23,22 @@ def generate_jwt_tokens(token_data: dict):
     return new_access_token, new_refresh_token
 
 
+
 def custom_jwt_required(
-    admin_only: Optional[bool] = None
+    admin_only: Optional[bool] = None,
+    this_user_only:Optional[bool] = None
 ):
-    def wrapper(fn):
+    def wrapper(fn, *args, **kwargs):
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
             jwt_data = get_jwt_identity()
+            
+            if this_user_only:
+                # пользователь может смотреть только свои данные
+                # суперпользователь может смотреть все
+                if kwargs['login'] != jwt_data['user_login'] and 'superuser' not in jwt_data['user_roles']:
+                    raise errors.Forbidden(reason='юзер может видеть только свои данные')
 
             if admin_only:
                 # в ручки управления ролями
@@ -46,10 +54,10 @@ def custom_jwt_required(
             # создан до этого момента
             last_total_logout = redis_cli.get(user_login)
             if not last_total_logout:
-                return fn()
+                return fn(*args, **kwargs)
             last_total_logout = float(last_total_logout.decode('utf-8'))
             if last_total_logout and last_total_logout < token_created:
-                return fn()
+                return fn(*args, **kwargs)
 
             raise errors.Forbidden(reason='Залогинься')
 
