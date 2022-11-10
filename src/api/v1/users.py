@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 )
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Profile, ChPass, Query, Cookies
+from src.api.v1.doc_spectree import spec, Login, ChPass, Cookies
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens, custom_jwt_required
@@ -23,7 +23,7 @@ routes = Blueprint('users', __name__)
 @routes.post('account/register')
 @catch_http_errors
 @spec.validate(
-    json=Profile, tags=["users"]
+    json=Login, tags=["users"]
 )
 def register():
     body = request.json
@@ -95,7 +95,7 @@ def logout():
 @routes.post('account/login')
 @catch_http_errors
 @spec.validate(
-    json=Profile, tags=["users"]
+    json=Login, tags=["users"]
 )
 def login():
     """берем пароль из body post запроса"""
@@ -159,9 +159,7 @@ def get_user_session(login: str) -> dict:
 
 @routes.get('/<string:login>')
 @catch_http_errors
-@spec.validate(
-    query=Query, cookies=Cookies, tags=["users"]
-)
+@custom_jwt_required(admin_only=True)
 def get_user_by_loging(login: str) -> dict:
     user = db_manager.users.get_user_by_login(login)
     return {

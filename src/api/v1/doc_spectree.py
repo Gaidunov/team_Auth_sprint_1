@@ -1,23 +1,20 @@
 from spectree import SpecTree
 from pydantic import BaseModel, Field
 
-class Profile(BaseModel):
-    login:str
-    password: str = Field(alias='pass')
 
 class ChPass(BaseModel):
     login:str
     password: str = Field(alias='pass')
     newpassword: str = Field(alias='new_pass')
 
-class Query(BaseModel):
+class Login(BaseModel):
     login:str = None
     password: str = Field(alias='pass', default=None) 
-    newpassword: str = Field(alias='new_pass', default=None)  
+
 
 class Cookies(BaseModel):
-    access_token_cookie:str
-    refresh_token_cookie:str
+    access_token_cookie:str = None
+    refresh_token_cookie:str = None
 
 class Role(BaseModel):
     role: str
