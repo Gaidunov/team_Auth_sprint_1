@@ -10,10 +10,11 @@ class ChPass(BaseModel):
     password: str = Field(alias='pass')
     newpassword: str = Field(alias='new_pass')
 
-class Query(BaseModel):
+class QueryLogin(BaseModel):
     login:str
-    password: str = Field(alias='pass')
-    newpassword: str = Field(alias='new_pass')
+
+class QueryRegService(BaseModel):
+    servise:str
 
 class Cookies(BaseModel):
     access_token_cookie:str

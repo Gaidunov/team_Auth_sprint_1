@@ -90,3 +90,16 @@ class Role(Base):
 
     def __repr__(self):
         return f'<Role {self.name}>'
+
+
+class RegServiсe(Base):
+    __tablename__ = 'registration_servises'
+
+    id = Column(
+        Text(),
+        primary_key=True,
+        default=str(uuid.uuid1()),
+        unique=True, nullable=False
+    )
+    name_service = Column(String, unique=True, nullable=False)
+    url = Column(String, unique=True, nullable=False)

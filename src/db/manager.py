@@ -6,9 +6,19 @@ from sqlalchemy.orm import Session
 from src.core.logger import logger
 from src.db import errors
 from src.db.db import db_session
-from src.models.models import User, Role, SessionHistory
+from src.models.models import User, Role, SessionHistory, RegServiсe
 from src.models.schemas import PydanticRole, PydanticSessions
 
+
+class RegServiseManager:
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+    def get_redirect_url(self, service):
+        existing_url = self.session.query(RegServiсe).filter_by(name_service = service).first()
+        if not existing_url:
+            raise errors.CustomNotFoundError(reason=f'service {service}')
+        return existing_url
 
 class UserManager:
     def __init__(self, session: Session) -> None:
@@ -210,6 +220,7 @@ class DataBaseManager:
         self.session = session
         self.users = UserManager(session)
         self.roles = RoleManager(session)
+        self.reg_servise = RegServiseManager(session)
         self.utils = Utils(session)
 
 

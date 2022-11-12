@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 )
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Profile, ChPass, Query, Cookies
+from src.api.v1.doc_spectree import spec, Profile, ChPass, QueryLogin, Cookies, QueryRegService
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens
@@ -30,6 +30,16 @@ def register():
     user_login, user_pass = body['login'], body['pass']
     db_manager.users.register_user(user_login, user_pass)
     return jsonify(msg=f'юзер {user_login} добавлен в БД'), HTTPStatus.CREATED
+
+@routes.get('account/<string:service>/register')
+@catch_http_errors
+@spec.validate(
+    query=QueryRegService, tags=["users"]
+)
+def get_register_in_servise(service: str) -> dict:
+    redirect_url = db_manager.reg_servise.get_redirect_url(service)
+    return redirect_url
+    # https://oauth.vk.com/authorize?client_id=51474914&display=page&redirect_uri=http://46.36.113.146/callback&scope=email&response_type=token&v=5.131&state=123456
 
 
 @routes.post('account/change_password')
@@ -133,7 +143,7 @@ def refresh() -> Response:
 @routes.get('/<string:login>/roles')
 @catch_http_errors
 @spec.validate(
-    query=Query, cookies=Cookies, tags=["users"]
+    query=QueryLogin, cookies=Cookies, tags=["users"]
 )
 def get_user_roles(login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
@@ -145,7 +155,7 @@ def get_user_roles(login: str) -> dict:
 @routes.get('/<string:login>/sessions')
 @catch_http_errors
 @spec.validate(
-    query=Query, cookies=Cookies, tags=["users"]
+    query=QueryLogin, cookies=Cookies, tags=["users"]
 )
 def get_user_session(login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(
@@ -157,7 +167,7 @@ def get_user_session(login: str) -> dict:
 @routes.get('/<string:login>')
 @catch_http_errors
 @spec.validate(
-    query=Query, cookies=Cookies, tags=["users"]
+    query=QueryLogin, cookies=Cookies, tags=["users"]
 )
 def get_user_by_loging(login: str) -> dict:
     user = db_manager.users.get_user_by_login(login)
