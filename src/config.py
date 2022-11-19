@@ -4,6 +4,17 @@ from pydantic import BaseSettings
 load_dotenv()
 
 
+class VkConfig(BaseSettings):
+    client_id:str
+    client_secret:str
+    redirect_uri:str
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = 'utf-8'
+        env_prefix = "vk_"
+
+
 class RedisSettings(BaseSettings):
     host: str
     port: int
@@ -40,6 +51,7 @@ class AuthDBSettings(BaseSettings):
 redis_settings = RedisSettings()
 flask_app_settings = FlaskAppSettings()
 auth_db_settings = AuthDBSettings()
+vk_settings = VkConfig()
 
 DB_CONNECTION_STRING = (
     f'postgresql+psycopg2://'

@@ -16,6 +16,7 @@ from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens
 from src.db.redis_client import redis_cli
+from src.social_api.vk import vk_api
 
 routes = Blueprint('users', __name__)
 
@@ -37,10 +38,27 @@ def register():
     query=QueryRegService, tags=["users"]
 )
 def get_register_in_servise(service: str) -> dict:
-    redirect_url = db_manager.reg_servise.get_redirect_url(service)
-    return redirect_url
+    return 'ok' 
+    # return r'https://oauth.vk.com/authorize?client_id=51474914&redirect_uri=http%3A%2F%2F185.236.29.120&display=page&response_type%20=code&state=it_my_state'
+    # redirect_url = db_manager.reg_servise.get_redirect_url(service)
+    # return redirect_url
     # https://oauth.vk.com/authorize?client_id=51474914&display=page&redirect_uri=http://46.36.113.146/callback&scope=email&response_type=token&v=5.131&state=123456
 
+#/api/v1/users/
+@routes.get('test/reg')
+@catch_http_errors
+def test_reg():
+    # 1 получаем код
+    code = request.values['code']
+    print('code --- ', code)
+    # 2 получаем аксесс токен
+    vk_data = vk_api.get_access_token(code)
+    # 3 регаем юзера
+    if not vk_data:
+        return 'ошибка регистрации. в ВК недостаточно данных'
+
+    temp_password = db_manager.users.register_via_vk(vk_data.email)
+    return f'зарегались. временный пароль {temp_password}. поменяй при первой возможности'
 
 @routes.post('account/change_password')
 @jwt_required()

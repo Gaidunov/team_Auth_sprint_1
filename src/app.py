@@ -39,11 +39,16 @@ def create_app() -> Flask:
         jti = jwt_payload["jti"]
         token_in_redis = redis_cli.get(jti)
         return token_in_redis is not None
-
+ 
     spec.register(app)
 
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
     app.register_blueprint(commands_bp)
 
+    @app.route('/')
+    def test():
+        return 'ok'
+
     return app
+
