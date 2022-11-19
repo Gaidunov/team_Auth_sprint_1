@@ -26,6 +26,17 @@ class RedisSettings(BaseSettings):
         env_prefix = "redis_"
 
 
+class RedisRLSettings(BaseSettings):
+    host: str
+    port: int
+    password: str
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = 'utf-8'
+        env_prefix = "redis_rl_"
+
+
 class FlaskAppSettings(BaseSettings):
     jwt_access_token_ttl: int
     jwt_refresh_token_ttl: int
@@ -49,6 +60,7 @@ class AuthDBSettings(BaseSettings):
 
 
 redis_settings = RedisSettings()
+redis_rl_settings = RedisRLSettings()
 flask_app_settings = FlaskAppSettings()
 auth_db_settings = AuthDBSettings()
 vk_settings = VkConfig()
