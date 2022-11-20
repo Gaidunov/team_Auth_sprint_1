@@ -13,10 +13,28 @@ from src.config import (
     DB_CONNECTION_STRING,
     flask_app_settings,
 )
+from src.tracer import configure_tracer
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from flask import request
+from opentelemetry import trace
 
 
 def create_app() -> Flask:
+    configure_tracer()
     app = Flask(__name__)
+    FlaskInstrumentor().instrument_app(app)
+
+    @app.before_request
+    def before_request():
+        request_id = request.headers.get('X-Request-Id')
+        if not request_id:
+            raise RuntimeError('request id is required')
+
+        tracer = trace.get_tracer(__name__)
+        span = tracer.start_span(name='api-request')
+        span.set_attribute('http.request_id', request_id)
+        span.end()
+
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
     models.db.init_app(app)
     db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
