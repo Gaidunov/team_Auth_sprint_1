@@ -171,8 +171,7 @@ def get_user_roles(login: str) -> dict:
 @routes.get('/<string:login>/sessions')
 @custom_jwt_required(this_user_only=True)
 @catch_http_errors
-@spec.validate(
-    query=QueryLogin, cookies=Cookies, tags=["users"]
+@spec.validate(query=QueryLogin, cookies=Cookies, tags=["users"],
    cookies=Cookies, tags=["users"]
 )
 def get_user_session(login: str) -> dict:
