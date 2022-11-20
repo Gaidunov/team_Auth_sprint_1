@@ -20,7 +20,7 @@ class VkConfig(BaseSettings):
         return template.format(redirect_uri=redirect_url)
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "vk_"
 
@@ -31,7 +31,7 @@ class RedisSettings(BaseSettings):
     password: str
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "redis_"
 
@@ -42,7 +42,7 @@ class RedisRLSettings(BaseSettings):
     password: str
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "redis_rl_"
 
@@ -52,7 +52,7 @@ class FlaskAppSettings(BaseSettings):
     jwt_refresh_token_ttl: int
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
 
 
@@ -64,13 +64,13 @@ class AuthDBSettings(BaseSettings):
     database: str
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "auth_db_"
 
 
 redis_settings = RedisSettings()
-# redis_rl_settings = RedisRLSettings()
+redis_rl_settings = RedisRLSettings()
 flask_app_settings = FlaskAppSettings()
 auth_db_settings = AuthDBSettings()
 vk_settings = VkConfig()
