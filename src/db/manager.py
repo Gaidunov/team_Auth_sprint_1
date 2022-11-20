@@ -18,10 +18,11 @@ class RegServiseManager:
         self.session = session
 
     def get_redirect_url(self, service):
-        existing_url = self.session.query(RegServiсe).filter_by(name_service = service).first()
+        existing_url = self.session.query(RegServiсe).filter_by(name_service=service).first()
         if not existing_url:
             raise errors.CustomNotFoundError(reason=f'service {service}')
         return existing_url
+
 
 class UserManager:
     def __init__(self, session: Session) -> None:

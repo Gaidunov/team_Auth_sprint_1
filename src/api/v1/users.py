@@ -38,7 +38,6 @@ def register():
 @routes.get('account/vk/oauth')
 @catch_http_errors
 def vk_oauth():
-    print('vk_settings.oath_url---', vk_settings.oath_url)
     return redirect(vk_settings.oath_url)
 
 
@@ -47,7 +46,6 @@ def vk_oauth():
 def vk_registration():
     # 1 получаем код
     code = request.values['code']
-    print('code --- ', code)
     # 2 получаем аксесс токен
     vk_data = vk_api.get_access_token(code)
     # 3 регаем юзера

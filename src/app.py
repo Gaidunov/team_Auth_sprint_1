@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from flask import Flask, url_for
+from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -31,7 +31,8 @@ def create_app() -> Flask:
         app,
         key_func=get_remote_address,
         default_limits=["100 per minute", "1 per second"],
-        storage_uri=f"redis://:{redis_settings.password}@redis:{redis_settings.port}/3",
+        storage_uri=f"redis://:{redis_settings.password}@"
+                    f"redis:{redis_settings.port}/3",
         strategy="fixed-window",  # or "moving-window"
     )
 
@@ -75,29 +76,5 @@ def create_app() -> Flask:
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
     app.register_blueprint(commands_bp)
-
-    @app.route('/api/pizda')
-    def test():
-        return 'ok'
-
-    def has_no_empty_params(rule):
-        defaults = rule.defaults if rule.defaults is not None else ()
-        arguments = rule.arguments if rule.arguments is not None else ()
-        return len(defaults) >= len(arguments)
-
-    @app.route("/api/site-map")
-    def site_map():
-        links = []
-        for rule in app.url_map.iter_rules():
-            # Filter out rules we can't navigate to in a browser
-            # and rules that require parameters
-            if "GET" in rule.methods and has_no_empty_params(rule):
-                url = url_for(rule.endpoint, **(rule.defaults or {}))
-                links.append((url, rule.endpoint))
-
-        for link in links:
-            print(link)
-
-        return links
 
     return app

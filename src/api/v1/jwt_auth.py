@@ -33,12 +33,14 @@ def custom_jwt_required(
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
             jwt_data = get_jwt_identity()
-            
+
             if this_user_only:
                 # пользователь может смотреть только свои данные
                 # суперпользователь может смотреть все
                 if kwargs['login'] != jwt_data['user_login'] and 'superuser' not in jwt_data['user_roles']:
-                    raise errors.Forbidden(reason='юзер может видеть только свои данные')
+                    raise errors.Forbidden(
+                        reason='юзер может видеть только свои данные'
+                    )
 
             if admin_only:
                 # в ручки управления ролями
