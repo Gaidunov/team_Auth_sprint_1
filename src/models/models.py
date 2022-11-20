@@ -15,14 +15,13 @@ users_n_roles = Table(
     Column("roles_id", ForeignKey("roles.id"), primary_key=True),
 )
 
-
+        
 class User(Base):
     __tablename__ = 'users'
 
     id = Column(
         Text(),
         primary_key=True,
-        default=str(uuid.uuid1()),
         unique=True,
         nullable=False
     )
@@ -90,3 +89,37 @@ class Role(Base):
 
     def __repr__(self):
         return f'<Role {self.name}>'
+
+
+class RegServiсe(Base):
+    __tablename__ = 'registration_servises'
+
+    id = Column(
+        Text(),
+        primary_key=True,
+        default=str(uuid.uuid1()),
+        unique=True, nullable=False
+    )
+    name_service = Column(String, unique=True, nullable=False)
+    url = Column(String, unique=True, nullable=False)
+
+
+# class VkAccount(Base):
+#     __tablename__ = 'vk_account'
+
+#     id = db.Column(str(uuid.uuid1()), primary_key=True)
+#     user_id = Column(
+#         Text(),
+#         ForeignKey("users.id")
+#     )
+#     user = db.relationship(User, backref=db.backref('vk_account', lazy=True))
+#     vk_login = Column(String, unique=True, nullable=False)
+
+
+#     # social_id = db.Column(db.Text, nullable=False)
+#     # social_name = db.Column(db.Text, nullable=False)
+
+#     __table_args__ = (db.UniqueConstraint('social_id', 'social_name', name='social_pk'), )
+    
+#     def __repr__(self):
+#         return f'<SocialAccount {self.social_name}:{self.user_id}>' 
