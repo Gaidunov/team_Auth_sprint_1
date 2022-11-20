@@ -7,19 +7,19 @@ load_dotenv()
 
 
 class VkConfig(BaseSettings):
-    # client_id: str
-    # client_secret: str
-    redirect_uri: str
-    oath_url: str = None
+    # client_id:str
+    # client_secret:str
+    redirect_uri:str
+    oath_url:str = None
 
     @validator('oath_url')
     def make_oath_url(cls, v, values):
         template = 'https://oauth.vk.com/authorize?client_id=51474914&redirect_uri={redirect_uri}&scope=email&display=page&response_type=code'
-        redirect_url = 'http://130.193.54.106:5000/api/v1/users/account/vk/register'
+        redirect_url = quote_plus(values['redirect_uri'])
         return template.format(redirect_uri=redirect_url)
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "vk_"
 
@@ -30,7 +30,7 @@ class RedisSettings(BaseSettings):
     password: str
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "redis_"
 
@@ -40,7 +40,7 @@ class FlaskAppSettings(BaseSettings):
     jwt_refresh_token_ttl: int
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
 
 
@@ -52,7 +52,7 @@ class AuthDBSettings(BaseSettings):
     database: str
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "auth_db_"
 

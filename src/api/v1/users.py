@@ -57,6 +57,7 @@ def vk_registration():
     temp_password = db_manager.users.register_via_vk(vk_data.email)
     return f'зарегались. временный пароль {temp_password}. поменяй при первой возможности'
 
+
 @routes.post('account/change_password')
 @jwt_required()
 @catch_http_errors
@@ -77,7 +78,7 @@ def change_password():
 @jwt_required()
 @catch_http_errors
 @spec.validate(
-     cookies=Cookies, tags=["users"]
+    cookies=Cookies, tags=["users"]
 )
 def logout_all_devices():
     """
@@ -100,7 +101,7 @@ def logout_all_devices():
 @routes.get('account/logout')
 @jwt_required()
 @spec.validate(
-     cookies=Cookies, tags=["users"]
+    cookies=Cookies, tags=["users"]
 )
 def logout():
     """
@@ -147,7 +148,7 @@ def login():
 @jwt_required(refresh=True)
 @custom_jwt_required()
 @spec.validate(
-     cookies=Cookies, tags=["users"]
+    cookies=Cookies, tags=["users"]
 )
 def refresh() -> Response:
     """обновляем access_token"""
@@ -159,10 +160,10 @@ def refresh() -> Response:
 @routes.get('/<string:login>/roles')
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
-@spec.validate(
-    query=QueryLogin, cookies=Cookies, tags=["users"],
-    path_parameter_descriptions={'loging':'это логин'}
-)
+@spec.validate(query=QueryLogin, cookies=Cookies,
+               path_parameter_descriptions={'loging': 'это логин'},
+               tags=["users"]
+               )
 def get_user_roles(login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
         login
@@ -173,9 +174,7 @@ def get_user_roles(login: str) -> dict:
 @routes.get('/<string:login>/sessions')
 @custom_jwt_required(this_user_only=True)
 @catch_http_errors
-@spec.validate(
-    query=QueryLogin, tags=["users"], cookies=Cookies,
-)
+@spec.validate(query=QueryLogin, cookies=Cookies, tags=["users"])
 def get_user_session(login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(
         login
