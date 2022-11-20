@@ -15,7 +15,7 @@ __pycache__/
 *.so
 
 # enviroment files
-*.env
+# *.env
 
 # Distribution / packaging
 .Python
