@@ -158,8 +158,7 @@ def refresh() -> Response:
 @routes.get('/<string:login>/roles')
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
-@spec.validate(
-    query=QueryLogin, cookies=Cookies, tags=["users"]
+@spec.validate(query=QueryLogin, cookies=Cookies, tags=["users"],
     cookies=Cookies, path_parameter_descriptions={'loging':'это логин'}, tags=["users"]
 )
 def get_user_roles(login: str) -> dict:
