@@ -1,5 +1,7 @@
+from urllib.parse import quote_plus
+
 from dotenv import load_dotenv
-from pydantic import BaseSettings
+from pydantic import BaseSettings, validator
 
 load_dotenv()
 
@@ -8,6 +10,14 @@ class VkConfig(BaseSettings):
     client_id:str
     client_secret:str
     redirect_uri:str
+    oath_url:str = None
+
+    @validator('oath_url')
+    def make_oath_url(cls, v, values):
+
+        template = 'https://oauth.vk.com/authorize?client_id=51474914&redirect_uri={redirect_uri}&scope=email&display=page&response_type=code'
+        redirect_url = quote_plus(values['redirect_uri'])
+        return template.format(redirect_uri=redirect_url)
 
     class Config:
         env_file = ".env"
@@ -60,7 +70,7 @@ class AuthDBSettings(BaseSettings):
 
 
 redis_settings = RedisSettings()
-redis_rl_settings = RedisRLSettings()
+# redis_rl_settings = RedisRLSettings()
 flask_app_settings = FlaskAppSettings()
 auth_db_settings = AuthDBSettings()
 vk_settings = VkConfig()

@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from datetime import datetime, timedelta
-from flask import Blueprint, request, make_response, jsonify, Response
+from flask import Blueprint, request, make_response, jsonify, Response, redirect
 from flask_jwt_extended import (
     set_access_cookies,
     set_refresh_cookies,
@@ -17,6 +17,7 @@ from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens
 from src.db.redis_client import redis_cli
 from src.social_api.vk import vk_api
+from src.config import vk_settings
 
 routes = Blueprint('users', __name__)
 
@@ -33,9 +34,15 @@ def register():
     return jsonify(msg=f'юзер {user_login} добавлен в БД'), HTTPStatus.CREATED
 
 
+@routes.get('account/vk/oauth')
+@catch_http_errors
+def vk_oauth():
+    print('vk_settings.oath_url---', vk_settings.oath_url)
+    return redirect(vk_settings.oath_url)
+
 @routes.get('account/vk/register')
 @catch_http_errors
-def test_reg():
+def vk_registration():
     # 1 получаем код
     code = request.values['code']
     print('code --- ', code)
