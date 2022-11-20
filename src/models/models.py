@@ -1,9 +1,14 @@
 import uuid
-from flask_sqlalchemy import SQLAlchemy
 
-from sqlalchemy import Column, DateTime, Text, String, ForeignKey, Enum, Table
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import (
+    Column, DateTime, Text,
+    String, ForeignKey,
+    Enum, Table, UniqueConstraint
+)
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from src.db.db import Base
 
 db = SQLAlchemy()
@@ -47,8 +52,36 @@ class User(Base):
 USER_ACTIONS = ['login', 'logout']
 
 
+def create_partition(target, connection, **kw) -> None:
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_smart" PARTITION OF "session_history" FOR VALUES IN ('pc')"""
+    )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS "session_history_mobile" 
+        PARTITION OF "session_history" FOR VALUES IN ('mobile')
+        """
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('tablet')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('bot')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('unknown')"""
+    )
+
+
 class SessionHistory(Base):
     __tablename__ = 'session_history'
+    __table_args__ = (
+        UniqueConstraint('id', 'user_device_type'),
+        {
+            'postgresql_partition_by': 'LIST (user_device_type)',
+            'listeners': [('after_create', create_partition)],
+        }
+    )
 
     id = Column(
         Text(),
@@ -69,6 +102,7 @@ class SessionHistory(Base):
         ),
     )
     user_agent = Column(Text())
+    user_device_type = Column(Text, primary_key=True)
 
 
 class Role(Base):

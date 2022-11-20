@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from src.core.logger import logger
 from src.db import errors
 from src.db.db import db_session
+from src.db.utils import get_device_from_user_agent
 from src.models.models import User, Role, SessionHistory, RegServiсe
 from src.models.schemas import PydanticRole, PydanticSessions
 
@@ -91,6 +92,7 @@ class UserManager:
     ) -> User | None:
         query = self.session.query(User)
         user = query.filter_by(login=login).first()
+        device = get_device_from_user_agent(user_agent)
 
         if not user:
             raise errors.CustomNotFoundError(f'user {login}')
@@ -100,7 +102,8 @@ class UserManager:
                 user_id=user.id,
                 user_agent=user_agent,
                 action='login',
-                date=datetime.now()
+                date=datetime.now(),
+                user_device_type=device,
             )
             self.session.add(session_action)
             self.session.commit()

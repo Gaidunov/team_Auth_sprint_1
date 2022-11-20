@@ -33,6 +33,16 @@ services:
     env_file:
       - .env
 
+  redis_rl:
+    image: redis:6.2-alpine
+    expose:
+      - "4242"
+    command: redis-server --requirepass ${redis_password}
+    volumes:
+      - redis:/data
+    env_file:
+      - .env
+
   auth_db:
     tty: true
     image: postgres:14.5-alpine
@@ -42,6 +52,14 @@ services:
     expose:
       - "5432"
     env_file: .env
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    depends_on:
+      - auth_db
 
 volumes:
   redis:
