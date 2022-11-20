@@ -32,20 +32,8 @@ def register():
     db_manager.users.register_user(user_login, user_pass)
     return jsonify(msg=f'юзер {user_login} добавлен в БД'), HTTPStatus.CREATED
 
-@routes.get('account/<string:service>/register')
-@catch_http_errors
-@spec.validate(
-    query=QueryRegService, tags=["users"]
-)
-def get_register_in_servise(service: str) -> dict:
-    return 'ok' 
-    # return r'https://oauth.vk.com/authorize?client_id=51474914&redirect_uri=http%3A%2F%2F185.236.29.120&display=page&response_type%20=code&state=it_my_state'
-    # redirect_url = db_manager.reg_servise.get_redirect_url(service)
-    # return redirect_url
-    # https://oauth.vk.com/authorize?client_id=51474914&display=page&redirect_uri=http://46.36.113.146/callback&scope=email&response_type=token&v=5.131&state=123456
 
-#/api/v1/users/
-@routes.get('test/reg')
+@routes.get('account/vk/register')
 @catch_http_errors
 def test_reg():
     # 1 получаем код
