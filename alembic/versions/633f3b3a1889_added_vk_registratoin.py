@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('name_service', sa.String(), nullable=False),
     sa.Column('url', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id'),
+    sa.UniqueConstraint('id'), 
     sa.UniqueConstraint('name_service'),
     sa.UniqueConstraint('url')
     )
