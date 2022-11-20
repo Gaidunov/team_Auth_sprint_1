@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 )
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Profile, ChPass, QueryLogin, Cookies, QueryRegService, Login
+from src.api.v1.doc_spectree import spec, ChPass, QueryLogin, Cookies, Login
 
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
