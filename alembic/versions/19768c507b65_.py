@@ -41,9 +41,11 @@ def upgrade() -> None:
     sa.Column('action', sa.Text(), nullable=True),
     # sa.Column('action', sa.Enum('login', 'logout', name='actions'), nullable=True),
     sa.Column('user_agent', sa.Text(), nullable=True),
+    sa.Column('user_device_type', sa.Text(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.UniqueConstraint('id'),
+    sa.PrimaryKeyConstraint('user_device_type'),
     )
     op.create_table('users_n_roles',
     sa.Column('users_id', sa.Text(), nullable=False),
