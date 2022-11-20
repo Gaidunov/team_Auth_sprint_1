@@ -11,10 +11,11 @@ from flask_jwt_extended import (
 )
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Profile, ChPass, QueryLogin, Cookies, QueryRegService
+from src.api.v1.doc_spectree import spec, Profile, ChPass, QueryLogin, Cookies, QueryRegService, Login
+
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
-from src.api.v1.jwt_auth import generate_jwt_tokens
+from src.api.v1.jwt_auth import generate_jwt_tokens, custom_jwt_required
 from src.db.redis_client import redis_cli
 from src.social_api.vk import vk_api
 from src.config import vk_settings
@@ -25,7 +26,7 @@ routes = Blueprint('users', __name__)
 @routes.post('account/register')
 @catch_http_errors
 @spec.validate(
-    json=Profile, tags=["users"]
+    json=Login, tags=["users"]
 )
 def register():
     body = request.json
@@ -118,7 +119,7 @@ def logout():
 @routes.post('account/login')
 @catch_http_errors
 @spec.validate(
-    json=Profile, tags=["users"]
+    json=Login, tags=["users"]
 )
 def login():
     """берем пароль из body post запроса"""
@@ -143,6 +144,7 @@ def login():
 
 @routes.post("account/refresh_token")
 @jwt_required(refresh=True)
+@custom_jwt_required()
 @spec.validate(
      cookies=Cookies, tags=["users"]
 )
@@ -155,8 +157,10 @@ def refresh() -> Response:
 
 @routes.get('/<string:login>/roles')
 @catch_http_errors
+@custom_jwt_required(admin_only=True)
 @spec.validate(
     query=QueryLogin, cookies=Cookies, tags=["users"]
+    cookies=Cookies, path_parameter_descriptions={'loging':'это логин'}, tags=["users"]
 )
 def get_user_roles(login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
@@ -166,9 +170,11 @@ def get_user_roles(login: str) -> dict:
 
 
 @routes.get('/<string:login>/sessions')
+@custom_jwt_required(this_user_only=True)
 @catch_http_errors
 @spec.validate(
     query=QueryLogin, cookies=Cookies, tags=["users"]
+   cookies=Cookies, tags=["users"]
 )
 def get_user_session(login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(
@@ -182,6 +188,7 @@ def get_user_session(login: str) -> dict:
 @spec.validate(
     query=QueryLogin, cookies=Cookies, tags=["users"]
 )
+@custom_jwt_required(admin_only=True)
 def get_user_by_loging(login: str) -> dict:
     user = db_manager.users.get_user_by_login(login)
     return {
