@@ -22,7 +22,6 @@ class User(Base):
     id = Column(
         Text(),
         primary_key=True,
-        default=str(uuid.uuid1()),
         unique=True,
         nullable=False
     )

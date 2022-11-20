@@ -76,7 +76,8 @@ class UserManager:
         if user:
             raise errors.AlreadyExistsError(f'user {login}')
         if not user:
-            user = User(login=login)
+            id_=uuid.uuid4()
+            user = User(id=id_, login=login)
             user.set_password(password)
             self.session.add(user)
             self.session.commit()
