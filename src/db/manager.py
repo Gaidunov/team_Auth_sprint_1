@@ -1,5 +1,7 @@
 import uuid
 from datetime import datetime
+import string
+from secrets import choice as secrets_choice
 
 from sqlalchemy.orm import Session
 
@@ -7,14 +9,41 @@ from src.core.logger import logger
 from src.db import errors
 from src.db.db import db_session
 from src.db.utils import get_device_from_user_agent
-from src.models.models import User, Role, SessionHistory
+from src.models.models import User, Role, SessionHistory, RegServiсe
 from src.models.schemas import PydanticRole, PydanticSessions
 
+
+class RegServiseManager:
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+    def get_redirect_url(self, service):
+        existing_url = self.session.query(RegServiсe).filter_by(name_service = service).first()
+        if not existing_url:
+            raise errors.CustomNotFoundError(reason=f'service {service}')
+        return existing_url
 
 class UserManager:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.session_history_schema = PydanticSessions
+
+    @staticmethod
+    def _generate_random_pass()->str:
+        """генерим рандомный пароль для юзеров, регающихся через соцсети"""
+        alphabet = string.ascii_letters + string.digits
+        return ''.join(secrets_choice(alphabet) for _ in range(16)) 
+
+    def register_via_vk(self, login):
+        password = self._generate_random_pass()
+        #TODO заджейсонить респонсы?
+        try:
+            self.register_user(login, password)
+            msg = f'зарегали юзера. вот пароль {password}'
+        except errors.AlreadyExistsError:
+            user = self.get_user_by_login(login)
+            msg = f'залогинили юзера. вот юзер {user}'
+        return msg
 
     def get_user_by_login(self, login: str) -> User:
         existing_user = self.session.query(User).filter_by(login=login).first()
@@ -48,7 +77,8 @@ class UserManager:
         if user:
             raise errors.AlreadyExistsError(f'user {login}')
         if not user:
-            user = User(login=login)
+            id_=uuid.uuid4()
+            user = User(id=id_, login=login)
             user.set_password(password)
             self.session.add(user)
             self.session.commit()
@@ -213,6 +243,7 @@ class DataBaseManager:
         self.session = session
         self.users = UserManager(session)
         self.roles = RoleManager(session)
+        self.reg_servise = RegServiseManager(session)
         self.utils = Utils(session)
 
 

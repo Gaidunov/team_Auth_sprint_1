@@ -2,6 +2,8 @@ from datetime import timedelta
 
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from src.api.v1.doc_spectree import spec
 
 from src.api.v1 import roles, users
@@ -12,6 +14,7 @@ from src.models import models
 from src.config import (
     DB_CONNECTION_STRING,
     flask_app_settings,
+    redis_rl_settings,
 )
 from src.tracer import configure_tracer
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -35,6 +38,16 @@ def create_app() -> Flask:
         span.set_attribute('http.request_id', request_id)
         span.end()
 
+    
+    limiter = Limiter(
+        app,
+        key_func=get_remote_address,
+        default_limits=["6000 per minute", "100 per second"],
+        storage_uri=f"redis://:{redis_rl_settings.password}@localhost:{redis_rl_settings.port}",
+        storage_options={"connect_timeout": 30},
+        strategy="fixed-window", # or "moving-window"
+    )
+
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
     models.db.init_app(app)
     db_manager.utils.prepopulate_db()  # добавяет дефолтные роли в БД
@@ -57,11 +70,18 @@ def create_app() -> Flask:
         jti = jwt_payload["jti"]
         token_in_redis = redis_cli.get(jti)
         return token_in_redis is not None
-
+ 
     spec.register(app)
+
+    limiter.limit()(app)
 
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
     app.register_blueprint(commands_bp)
 
+    @app.route('/')
+    def test():
+        return 'ok'
+
     return app
+

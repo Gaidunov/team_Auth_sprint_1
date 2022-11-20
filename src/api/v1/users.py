@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from datetime import datetime, timedelta
-from flask import Blueprint, request, make_response, jsonify, Response
+from flask import Blueprint, request, make_response, jsonify, Response, redirect
 from flask_jwt_extended import (
     set_access_cookies,
     set_refresh_cookies,
@@ -11,11 +11,14 @@ from flask_jwt_extended import (
 )
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Login, ChPass, Cookies
+from src.api.v1.doc_spectree import spec, Profile, ChPass, QueryLogin, Cookies, QueryRegService, Login
+
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens, custom_jwt_required
 from src.db.redis_client import redis_cli
+from src.social_api.vk import vk_api
+from src.config import vk_settings
 
 routes = Blueprint('users', __name__)
 
@@ -31,6 +34,27 @@ def register():
     db_manager.users.register_user(user_login, user_pass)
     return jsonify(msg=f'юзер {user_login} добавлен в БД'), HTTPStatus.CREATED
 
+
+@routes.get('account/vk/oauth')
+@catch_http_errors
+def vk_oauth():
+    print('vk_settings.oath_url---', vk_settings.oath_url)
+    return redirect(vk_settings.oath_url)
+
+@routes.get('account/vk/register')
+@catch_http_errors
+def vk_registration():
+    # 1 получаем код
+    code = request.values['code']
+    print('code --- ', code)
+    # 2 получаем аксесс токен
+    vk_data = vk_api.get_access_token(code)
+    # 3 регаем юзера
+    if not vk_data:
+        return 'ошибка регистрации. в ВК недостаточно данных'
+
+    temp_password = db_manager.users.register_via_vk(vk_data.email)
+    return f'зарегались. временный пароль {temp_password}. поменяй при первой возможности'
 
 @routes.post('account/change_password')
 @jwt_required()
@@ -135,6 +159,7 @@ def refresh() -> Response:
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
 @spec.validate(
+    query=QueryLogin, cookies=Cookies, tags=["users"]
     cookies=Cookies, path_parameter_descriptions={'loging':'это логин'}, tags=["users"]
 )
 def get_user_roles(login: str) -> dict:
@@ -148,6 +173,7 @@ def get_user_roles(login: str) -> dict:
 @custom_jwt_required(this_user_only=True)
 @catch_http_errors
 @spec.validate(
+    query=QueryLogin, cookies=Cookies, tags=["users"]
    cookies=Cookies, tags=["users"]
 )
 def get_user_session(login: str) -> dict:
@@ -159,6 +185,9 @@ def get_user_session(login: str) -> dict:
 
 @routes.get('/<string:login>')
 @catch_http_errors
+@spec.validate(
+    query=QueryLogin, cookies=Cookies, tags=["users"]
+)
 @custom_jwt_required(admin_only=True)
 def get_user_by_loging(login: str) -> dict:
     user = db_manager.users.get_user_by_login(login)

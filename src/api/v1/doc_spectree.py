@@ -7,6 +7,11 @@ class ChPass(BaseModel):
     password: str = Field(alias='pass')
     newpassword: str = Field(alias='new_pass')
 
+class QueryLogin(BaseModel):
+    login:str
+
+class QueryRegService(BaseModel):
+    servise:str
 
 class Login(BaseModel):
     login: str = None
