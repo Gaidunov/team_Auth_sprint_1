@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 )
 from spectree import Response
 
-from src.api.v1.doc_spectree import spec, Profile, ChPass, QueryLogin, Cookies, QueryRegService, Login
+from src.api.v1.doc_spectree import spec, ChPass, QueryLogin, Cookies, Login
 
 from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
@@ -40,6 +40,7 @@ def register():
 def vk_oauth():
     print('vk_settings.oath_url---', vk_settings.oath_url)
     return redirect(vk_settings.oath_url)
+
 
 @routes.get('account/vk/register')
 @catch_http_errors
@@ -159,8 +160,8 @@ def refresh() -> Response:
 @catch_http_errors
 @custom_jwt_required(admin_only=True)
 @spec.validate(
-    query=QueryLogin, cookies=Cookies, tags=["users"]
-    cookies=Cookies, path_parameter_descriptions={'loging':'это логин'}, tags=["users"]
+    query=QueryLogin, cookies=Cookies, tags=["users"],
+    path_parameter_descriptions={'loging':'это логин'}
 )
 def get_user_roles(login: str) -> dict:
     roles = db_manager.roles.get_user_roles_by_login(
@@ -173,8 +174,7 @@ def get_user_roles(login: str) -> dict:
 @custom_jwt_required(this_user_only=True)
 @catch_http_errors
 @spec.validate(
-    query=QueryLogin, cookies=Cookies, tags=["users"]
-   cookies=Cookies, tags=["users"]
+    query=QueryLogin, tags=["users"], cookies=Cookies,
 )
 def get_user_session(login: str) -> dict:
     sessions = db_manager.users.get_user_sessions(

@@ -4,8 +4,8 @@ services:
   auth_api:
     build: .
     command: /bin/bash -c "flask run --host=0.0.0.0 --port=5000"
-    expose:
-      - "5000"
+    ports:
+      - "5001:5000"
     depends_on:
       - auth_db
       - redis
@@ -27,16 +27,6 @@ services:
     image: redis:6.2-alpine
     expose:
       - "6379"
-    command: redis-server --requirepass ${redis_password}
-    volumes:
-      - redis:/data
-    env_file:
-      - .env
-
-  redis_rl:
-    image: redis:6.2-alpine
-    expose:
-      - "4242"
     command: redis-server --requirepass ${redis_password}
     volumes:
       - redis:/data

@@ -1,5 +1,6 @@
 from src.social_api.vk import vk_api
 
+
 class SocialApi:
     """это интерфейс, в котором собираются апи всех сервисов"""
 

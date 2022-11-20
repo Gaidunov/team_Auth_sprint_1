@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from flask import Flask
+from flask import Flask, url_for
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -14,7 +14,7 @@ from src.models import models
 from src.config import (
     DB_CONNECTION_STRING,
     flask_app_settings,
-    redis_rl_settings,
+    redis_settings,
 )
 from src.tracer import configure_tracer
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -27,6 +27,15 @@ def create_app() -> Flask:
     app = Flask(__name__)
     FlaskInstrumentor().instrument_app(app)
 
+    limiter = Limiter(
+        app,
+        key_func=get_remote_address,
+        default_limits=["100 per minute", "1 per second"],
+        storage_uri=f"redis://:{redis_settings.password}@redis:{redis_settings.port}/3",
+        strategy="fixed-window",  # or "moving-window"
+    )
+
+    @limiter.limit(limit_value='1 per second')
     @app.before_request
     def before_request():
         request_id = request.headers.get('X-Request-Id')
@@ -37,16 +46,6 @@ def create_app() -> Flask:
         span = tracer.start_span(name='api-request')
         span.set_attribute('http.request_id', request_id)
         span.end()
-
-    
-    limiter = Limiter(
-        app,
-        key_func=get_remote_address,
-        default_limits=["6000 per minute", "100 per second"],
-        storage_uri=f"redis://:{redis_rl_settings.password}@localhost:{redis_rl_settings.port}",
-        storage_options={"connect_timeout": 30},
-        strategy="fixed-window", # or "moving-window"
-    )
 
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
     models.db.init_app(app)
@@ -73,15 +72,32 @@ def create_app() -> Flask:
  
     spec.register(app)
 
-    limiter.limit()(app)
-
     app.register_blueprint(users.routes, url_prefix='/api/v1/users/')
     app.register_blueprint(roles.routes, url_prefix='/api/v1/roles/')
     app.register_blueprint(commands_bp)
 
-    @app.route('/')
+    @app.route('/api/pizda')
     def test():
         return 'ok'
 
-    return app
+    def has_no_empty_params(rule):
+        defaults = rule.defaults if rule.defaults is not None else ()
+        arguments = rule.arguments if rule.arguments is not None else ()
+        return len(defaults) >= len(arguments)
 
+    @app.route("/api/site-map")
+    def site_map():
+        links = []
+        for rule in app.url_map.iter_rules():
+            # Filter out rules we can't navigate to in a browser
+            # and rules that require parameters
+            if "GET" in rule.methods and has_no_empty_params(rule):
+                url = url_for(rule.endpoint, **(rule.defaults or {}))
+                links.append((url, rule.endpoint))
+
+        for link in links:
+            print(link)
+
+        return links
+
+    return app
