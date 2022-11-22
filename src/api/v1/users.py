@@ -17,7 +17,7 @@ from src.db.manager import db_manager
 from src.db.errors import catch_http_errors
 from src.api.v1.jwt_auth import generate_jwt_tokens, custom_jwt_required
 from src.db.redis_client import redis_cli
-from src.social_api.vk import vk_api
+from src.social_api.api import social_api
 from src.config import vk_settings
 
 routes = Blueprint('users', __name__)
@@ -47,14 +47,12 @@ def vk_registration():
     # 1 получаем код
     code = request.values['code']
     # 2 получаем аксесс токен
-    vk_data = vk_api.get_access_token(code)
+    vk_data = social_api.vk.get_access_token(code) 
     # 3 регаем юзера
     if not vk_data:
         return 'ошибка регистрации. в ВК недостаточно данных'
-
-    temp_password = db_manager.users.register_via_vk(vk_data.email)
-    return f'зарегались. временный пароль {temp_password}. поменяй при первой возможности'
-
+    msg = db_manager.users.register_via_vk(vk_data.email)
+    return msg
 
 @routes.post('account/change_password')
 @jwt_required()
@@ -140,6 +138,17 @@ def login():
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
     return response, HTTPStatus.OK
+
+
+@routes.get("verify_token")
+@catch_http_errors
+@custom_jwt_required()
+@spec.validate(
+    cookies=Cookies, tags=["users"]
+)
+def verify_token()->int:
+    """проверяем, валидный ли токен"""
+    return 1
 
 
 @routes.post("account/refresh_token")
