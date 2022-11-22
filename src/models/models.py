@@ -1,6 +1,7 @@
 import uuid
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import (
     Column, DateTime, Text,
     String, ForeignKey,
@@ -25,10 +26,11 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(
-        Text(),
+        UUID(as_uuid=True),
         primary_key=True,
         unique=True,
-        nullable=False
+        nullable=False,
+        default=uuid.uuid1
     )
     login = Column(String, unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
@@ -84,9 +86,9 @@ class SessionHistory(Base):
     )
 
     id = Column(
-        Text(),
+        UUID(as_uuid=True),
         primary_key=True,
-        default=str(uuid.uuid1()),
+        default=uuid.uuid1,
         unique=True,
         nullable=False
     )
@@ -109,9 +111,9 @@ class Role(Base):
     __tablename__ = 'roles'
 
     id = Column(
-        Text(),
+        UUID(as_uuid=True),
         primary_key=True,
-        default=str(uuid.uuid1()),
+        default=uuid.uuid1,
         unique=True, nullable=False
     )
     name = Column(Text(), unique=True, nullable=False)
@@ -129,31 +131,11 @@ class RegServiсe(Base):
     __tablename__ = 'registration_servises'
 
     id = Column(
-        Text(),
+        UUID(as_uuid=True),
         primary_key=True,
-        default=str(uuid.uuid1()),
+        default=uuid.uuid1,
         unique=True, nullable=False
     )
     name_service = Column(String, unique=True, nullable=False)
     url = Column(String, unique=True, nullable=False)
 
-
-# class VkAccount(Base):
-#     __tablename__ = 'vk_account'
-
-#     id = db.Column(str(uuid.uuid1()), primary_key=True)
-#     user_id = Column(
-#         Text(),
-#         ForeignKey("users.id")
-#     )
-#     user = db.relationship(User, backref=db.backref('vk_account', lazy=True))
-#     vk_login = Column(String, unique=True, nullable=False)
-
-
-#     # social_id = db.Column(db.Text, nullable=False)
-#     # social_name = db.Column(db.Text, nullable=False)
-
-#     __table_args__ = (db.UniqueConstraint('social_id', 'social_name', name='social_pk'), )
-    
-#     def __repr__(self):
-#         return f'<SocialAccount {self.social_name}:{self.user_id}>' 
