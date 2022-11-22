@@ -9,16 +9,16 @@ from src.core.logger import logger
 from src.db import errors
 from src.db.db import db_session
 from src.db.utils import get_device_from_user_agent
-from src.models.models import User, Role, SessionHistory, RegServiсe
+from src.models.models import User, Role, SessionHistory, RegService
 from src.models.schemas import PydanticRole, PydanticSessions
 
 
-class RegServiseManager:
+class RegServiceManager:
     def __init__(self, session: Session) -> None:
         self.session = session
 
     def get_redirect_url(self, service):
-        existing_url = self.session.query(RegServiсe).filter_by(name_service=service).first()
+        existing_url = self.session.query(RegService).filter_by(name_service=service).first()
         if not existing_url:
             raise errors.CustomNotFoundError(reason=f'service {service}')
         return existing_url
@@ -244,7 +244,7 @@ class DataBaseManager:
         self.session = session
         self.users = UserManager(session)
         self.roles = RoleManager(session)
-        self.reg_servise = RegServiseManager(session)
+        self.reg_servise = RegServiceManager(session)
         self.utils = Utils(session)
 
 

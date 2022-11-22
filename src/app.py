@@ -1,52 +1,47 @@
 from datetime import timedelta
 
 from flask import Flask
+from flask import request
 from flask_jwt_extended import JWTManager
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from src.api.v1.doc_spectree import spec
+from opentelemetry import trace
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 from src.api.v1 import roles, users
-from src.db.manager import db_manager
-from src.db.redis_client import redis_cli
-from src.flask_commands import commands_bp
-from src.models import models
+from src.api.v1.doc_spectree import spec
 from src.config import (
     DB_CONNECTION_STRING,
     flask_app_settings,
-    redis_settings,
+    ENABLE_TRACER,
 )
+from src.db.manager import db_manager
+from src.db.redis_client import redis_cli
+from src.flask_commands import commands_bp
+from src.limiter_config import (
+    configure_limiter,
+    LIMITER_SECOND_LIMIT,
+)
+from src.models import models
 from src.tracer import configure_tracer
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from flask import request
-from opentelemetry import trace
 
 
 def create_app() -> Flask:
     configure_tracer()
     app = Flask(__name__)
     FlaskInstrumentor().instrument_app(app)
+    limiter = configure_limiter(app)
 
-    limiter = Limiter(
-        app,
-        key_func=get_remote_address,
-        default_limits=["100 per minute", "1 per second"],
-        storage_uri=f"redis://:{redis_settings.password}@"
-                    f"redis:{redis_settings.port}/3",
-        strategy="fixed-window",  # or "moving-window"
-    )
-
-    @limiter.limit(limit_value='1 per second')
+    @limiter.limit(limit_value=LIMITER_SECOND_LIMIT)
     @app.before_request
     def before_request():
         request_id = request.headers.get('X-Request-Id')
         if not request_id:
             raise RuntimeError('request id is required')
 
-        tracer = trace.get_tracer(__name__)
-        span = tracer.start_span(name='api-request')
-        span.set_attribute('http.request_id', request_id)
-        span.end()
+        if ENABLE_TRACER:
+            tracer = trace.get_tracer(__name__)
+            span = tracer.start_span(name='api-request')
+            span.set_attribute('http.request_id', request_id)
+            span.end()
 
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONNECTION_STRING
     models.db.init_app(app)

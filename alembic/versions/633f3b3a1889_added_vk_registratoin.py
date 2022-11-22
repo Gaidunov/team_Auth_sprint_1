@@ -28,9 +28,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('url')
     )
     op.create_unique_constraint(None, 'roles', ['id'])
-    op.create_unique_constraint(None, 'session_history', ['id'])
     op.create_unique_constraint(None, 'users', ['id'])
-    # op.drop_column('users', 'test_field')
     # ### end Alembic commands ###
 
 

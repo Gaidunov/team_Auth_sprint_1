@@ -8,6 +8,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import event
 
 from src.db.db import Base
 
@@ -52,34 +53,12 @@ class User(Base):
 USER_ACTIONS = ['login', 'logout']
 
 
-def create_partition(target, connection, **kw) -> None:
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_smart" PARTITION OF "session_history" FOR VALUES IN ('pc')"""
-    )
-    connection.execute(
-        """
-        CREATE TABLE IF NOT EXISTS "session_history_mobile" 
-        PARTITION OF "session_history" FOR VALUES IN ('mobile')
-        """
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('tablet')"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('bot')"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('unknown')"""
-    )
-
-
 class SessionHistory(Base):
     __tablename__ = 'session_history'
     __table_args__ = (
         UniqueConstraint('id', 'user_device_type'),
         {
             'postgresql_partition_by': 'LIST (user_device_type)',
-            'listeners': [('after_create', create_partition)],
         }
     )
 
@@ -102,7 +81,36 @@ class SessionHistory(Base):
         ),
     )
     user_agent = Column(Text())
-    user_device_type = Column(Text, primary_key=True)
+    user_device_type = Column(
+        Text,
+        primary_key=True
+    )
+
+
+@event.listens_for(SessionHistory.__table__, 'after_create')
+def receive_after_create(target, connection, **kw):
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_pc" 
+        PARTITION OF "session_history" FOR VALUES IN ('pc')"""
+    )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS "session_history_mobile" 
+        PARTITION OF "session_history" FOR VALUES IN ('mobile')
+        """
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_tablet" 
+        PARTITION OF "session_history" FOR VALUES IN ('tablet')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_bot" 
+        PARTITION OF "session_history" FOR VALUES IN ('bot')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "session_history_unknown" 
+        PARTITION OF "session_history" FOR VALUES IN ('unknown')"""
+    )
 
 
 class Role(Base):
@@ -125,7 +133,7 @@ class Role(Base):
         return f'<Role {self.name}>'
 
 
-class RegServiсe(Base):
+class RegService(Base):
     __tablename__ = 'registration_servises'
 
     id = Column(
