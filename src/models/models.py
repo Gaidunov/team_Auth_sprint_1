@@ -7,10 +7,16 @@ from sqlalchemy import (
     String, ForeignKey,
     Enum, Table, UniqueConstraint
 )
+from sqlalchemy import event
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from src.db.db import Base
+from .session_history import (
+    DeviceType,
+    create_table_login_history_partition_ddl,
+)
 
 db = SQLAlchemy()
 
@@ -54,37 +60,7 @@ class User(Base):
 USER_ACTIONS = ['login', 'logout']
 
 
-def create_partition(target, connection, **kw) -> None:
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_smart" PARTITION OF "session_history" FOR VALUES IN ('pc')"""
-    )
-    connection.execute(
-        """
-        CREATE TABLE IF NOT EXISTS "session_history_mobile" 
-        PARTITION OF "session_history" FOR VALUES IN ('mobile')
-        """
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('tablet')"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('bot')"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "session_history_web" PARTITION OF "session_history" FOR VALUES IN ('unknown')"""
-    )
-
-
-class SessionHistory(Base):
-    __tablename__ = 'session_history'
-    __table_args__ = (
-        UniqueConstraint('id', 'user_device_type'),
-        {
-            'postgresql_partition_by': 'LIST (user_device_type)',
-            'listeners': [('after_create', create_partition)],
-        }
-    )
-
+class SessionHistoryMixin:
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -92,10 +68,14 @@ class SessionHistory(Base):
         unique=True,
         nullable=False
     )
-    user_id = Column(
-        Text(),
-        ForeignKey("users.id")
-    )
+
+    @declared_attr
+    def user_id(self):
+        return Column(
+            Text(),
+            ForeignKey("users.id")
+        )
+
     date = Column(DateTime)
     action = Column(
         Enum(
@@ -104,7 +84,74 @@ class SessionHistory(Base):
         ),
     )
     user_agent = Column(Text())
-    user_device_type = Column(Text, primary_key=True)
+    user_device_type = Column(
+        Enum(DeviceType),
+        primary_key=True
+    )
+
+
+class SessionHistoryPC(SessionHistoryMixin, db.Model):
+    """User session history model for partition table for PC."""
+
+    __tablename__ = "session_history_pc"
+
+
+class SessionHistoryMobile(SessionHistoryMixin, db.Model):
+    """User session history model for partition table for mobile devices."""
+
+    __tablename__ = "session_history_mobile"
+
+
+class SessionHistoryTablet(SessionHistoryMixin, db.Model):
+    """User session history model for partition table for tablet devices."""
+    __tablename__ = "session_history_tablet"
+
+
+class SessionHistoryBot(SessionHistoryMixin, db.Model):
+    """User session history model for partition table for bots."""
+
+    __tablename__ = "session_history_bot"
+
+
+class SessionHistoryUnknown(SessionHistoryMixin, db.Model):
+    """User session history model for partition table for other unknown types."""
+
+    __tablename__ = "session_history_unknown"
+
+
+PARTITION_TABLES_REGISTRY = (
+    (SessionHistoryPC, DeviceType.PC),
+    (SessionHistoryMobile, DeviceType.MOBILE),
+    (SessionHistoryTablet, DeviceType.TABLET),
+    (SessionHistoryBot, DeviceType.BOT),
+    (SessionHistoryUnknown, DeviceType.UNKNOWN),
+)
+
+
+class SessionHistory(SessionHistoryMixin, Base):
+    __tablename__ = 'session_history'
+    __table_args__ = (
+        UniqueConstraint('id', 'user_device_type'),
+        {
+            'postgresql_partition_by': 'LIST (user_device_type)',
+        }
+    )
+
+
+def attach_event_listeners() -> None:
+    for class_, device_type in PARTITION_TABLES_REGISTRY:
+        class_.__table__.add_is_dependent_on(SessionHistory.__table__)
+        event.listen(
+            class_.__table__,
+            'after_create',
+            create_table_login_history_partition_ddl(
+                class_.__table__,
+                device_type,
+            ),
+        )
+
+
+attach_event_listeners()
 
 
 class Role(Base):
@@ -127,7 +174,7 @@ class Role(Base):
         return f'<Role {self.name}>'
 
 
-class RegServiсe(Base):
+class RegService(Base):
     __tablename__ = 'registration_servises'
 
     id = Column(

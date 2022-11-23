@@ -1,3 +1,4 @@
+import os
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
@@ -5,12 +6,12 @@ from pydantic import BaseSettings, validator
 
 load_dotenv()
 
+ENABLE_TRACER = bool(os.getenv('ENABLE_TRACER', False))
+
 
 class VkConfig(BaseSettings):
-    # client_id:str
-    # client_secret:str
-    redirect_uri:str
-    oath_url:str = None
+    redirect_uri: str
+    oath_url: str = None
 
     @validator('oath_url')
     def make_oath_url(cls, v, values):
@@ -36,6 +37,16 @@ class RedisSettings(BaseSettings):
         env_file = "../.env"
         env_file_encoding = 'utf-8'
         env_prefix = "redis_"
+
+
+class JaegerSettings(BaseSettings):
+    host: str
+    port: int
+
+    class Config:
+        env_file = "../.env"
+        env_file_encoding = 'utf-8'
+        env_prefix = "jaeger_"
 
 
 class FlaskAppSettings(BaseSettings):

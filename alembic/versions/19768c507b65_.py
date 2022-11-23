@@ -39,13 +39,12 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Text(), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=True),
     sa.Column('action', sa.Text(), nullable=True),
-    # sa.Column('action', sa.Enum('login', 'logout', name='actions'), nullable=True),
     sa.Column('user_agent', sa.Text(), nullable=True),
     sa.Column('user_device_type', sa.Text(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id'),
-    sa.PrimaryKeyConstraint('user_device_type'),
+    sa.PrimaryKeyConstraint('id', 'user_device_type'),
+    sa.UniqueConstraint('id', 'user_device_type'),
+    postgresql_partition_by='LIST (user_device_type)'
     )
     op.create_table('users_n_roles',
     sa.Column('users_id', sa.Text(), nullable=False),
@@ -54,6 +53,16 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['users_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('users_id', 'roles_id')
     )
+
+    from src.models.session_history import create_table_login_history_partition_ddl
+    from src.models.models import PARTITION_TABLES_REGISTRY
+    for table_class, device_type in PARTITION_TABLES_REGISTRY:
+        ddl = create_table_login_history_partition_ddl(
+            table_class.__table__,
+            device_type
+        )
+        ddl(target=None, bind=op.get_bind())
+
     # ### end Alembic commands ###
 
 
