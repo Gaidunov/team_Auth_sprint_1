@@ -70,11 +70,21 @@ class AuthDBSettings(BaseSettings):
         env_file_encoding = 'utf-8'
         env_prefix = "auth_db_"
 
+class LogstashSettings(BaseSettings):
+    host: str
+    port: int
+
+    class Config:
+        env_file = "../.env"
+        env_file_encoding = 'utf-8'
+        env_prefix = "logstash_"
+
 
 redis_settings = RedisSettings()
 flask_app_settings = FlaskAppSettings()
 auth_db_settings = AuthDBSettings()
 vk_settings = VkConfig()
+logstash_settings = LogstashSettings()
 
 DB_CONNECTION_STRING = (
     f'postgresql+psycopg2://'

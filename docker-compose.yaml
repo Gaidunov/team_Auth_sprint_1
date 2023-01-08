@@ -50,6 +50,16 @@ services:
       - "16686:16686"
     depends_on:
       - auth_db
+  elk:
+    image: sebp/elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+    volumes:
+      - ./elk/logstash:/etc/logstash/conf.d
+      - ./elk/logstash:/var/lib/logstash
+      - ./elk/elasticsearch:/usr/share/elasticsearch/data
 
 volumes:
   redis:

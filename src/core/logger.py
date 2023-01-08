@@ -1,5 +1,10 @@
 import logging
 
+from logstash_logger import LogstashFormatterV1
+
+from ..config import logstash_settings
+
+
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOG_DEFAULT_HANDLERS = ['console', ]
 
@@ -62,3 +67,8 @@ LOGGING = {
 }
 
 logger = logging.getLogger()
+logstash_handler = logger.handlers.SocketHandler(
+    host = logstash_settings.host, 
+    port = logstash_settings.port
+    )
+logstash_handler.setFormatter(LogstashFormatterV1())

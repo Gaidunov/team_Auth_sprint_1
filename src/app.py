@@ -1,10 +1,14 @@
 from datetime import timedelta
+import logging
 
 from flask import Flask
 from flask import request
 from flask_jwt_extended import JWTManager
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
 
 from src.api.v1 import roles, users
 from src.api.v1.doc_spectree import spec
@@ -22,11 +26,20 @@ from src.limiter_config import (
 )
 from src.models import models
 from src.tracer import configure_tracer
+from src.core.logger import logstash_handler
 
 
 def create_app() -> Flask:
     configure_tracer()
+    sentry_sdk.init(
+        dsn="https://cfd9ef0d5139446a9ac769207856c5b0@o4504323528982528.ingest.sentry.io/4504323538288644",
+        integrations=[
+            FlaskIntegration(),
+        ],
+        traces_sample_rate=1.0,
+    )
     app = Flask(__name__)
+    app.logger.addHandler(logstash_handler)
     FlaskInstrumentor().instrument_app(app)
     limiter = configure_limiter(app)
 
