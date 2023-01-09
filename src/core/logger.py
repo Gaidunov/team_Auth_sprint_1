@@ -71,4 +71,4 @@ logstash_handler = logger.handlers.SocketHandler(
     host = logstash_settings.host, 
     port = logstash_settings.port
     )
-logstash_handler.setFormatter(LogstashFormatterV1())
+logstash_handler.setFormatter(LogstashFormatterV1(tags=['auth_app']))

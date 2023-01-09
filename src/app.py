@@ -35,8 +35,7 @@ def create_app() -> Flask:
         dsn="https://cfd9ef0d5139446a9ac769207856c5b0@o4504323528982528.ingest.sentry.io/4504323538288644",
         integrations=[
             FlaskIntegration(),
-        ],
-        traces_sample_rate=1.0,
+        ]
     )
     app = Flask(__name__)
     app.logger.addHandler(logstash_handler)
