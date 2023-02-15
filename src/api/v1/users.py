@@ -201,3 +201,20 @@ def get_user_by_loging(login: str) -> dict:
         'user_id': user.id,
         'login': user.login,
     }
+
+@routes.get("verify_token")
+@catch_http_errors
+@custom_jwt_required()
+@spec.validate(
+    cookies=Cookies, tags=["users"]
+)
+def verify_token()->int:
+    """Достать данные пользователя"""
+    user_id = request.headers.get('user_id')
+    user = db_manager.users.get_user_by_id(user_id)
+    return {
+        'user_id': user.id,
+        'login': user.login,
+        'type_send': user.type_notif,
+        'time_zone': user.time_zone
+    }
