@@ -216,5 +216,6 @@ def verify_token()->int:
         'user_id': user.id,
         'login': user.login,
         'type_send': user.type_notif,
-        'time_zone': user.time_zone
+        'time_zone': user.time_zone,
+        'communication_adress': user.communication_adress
     }
